@@ -73,7 +73,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <SidebarGroup>
           <SidebarGroupLabel>Workspace</SidebarGroupLabel>
 
-          <SidebarMenu>
+          <SidebarMenu className="gap-1.5">
             {navigation.map(({ title, url, icon: Icon }) => (
               <SidebarMenuItem key={url}>
                 <SidebarMenuButton
