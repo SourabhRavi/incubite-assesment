@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useSearchParams } from "react-router"
 import {
   Eye,
@@ -145,6 +145,29 @@ const EmployeesPage = () => {
   const [searchParams, setSearchParams] = useSearchParams()
 
   const search = searchParams.get("search") ?? ""
+  const [searchInput, setSearchInput] = useState(search)
+
+  useEffect(() => {
+    const timeout = window.setTimeout(() => {
+      const value = searchInput.trim()
+
+      if (value === search) return
+
+      const nextParams = new URLSearchParams(searchParams)
+
+      if (value) {
+        nextParams.set("search", value)
+      } else {
+        nextParams.delete("search")
+      }
+
+      nextParams.delete("page")
+
+      setSearchParams(nextParams, { replace: true })
+    }, 300)
+
+    return () => window.clearTimeout(timeout)
+  }, [searchInput, search, searchParams, setSearchParams])
 
   const [isEmployeeDialogOpen, setIsEmployeeDialogOpen] = useState(false)
   const [selectedEmployee, setSelectedEmployee] = useState<
@@ -166,6 +189,7 @@ const EmployeesPage = () => {
     limit,
     ...(country ? { country: country as Country } : {}),
     ...(jobTitle ? { jobTitle: jobTitle as JobTitle } : {}),
+    ...(search.trim() ? { search: search.trim() } : {}),
   }
 
   const { data, isPending, isError, error, isFetching, refetch } =
@@ -272,15 +296,16 @@ const EmployeesPage = () => {
                 type="button"
                 aria-label="Clear filters"
                 title="Clear filters"
-                onClick={() =>
+                onClick={() => {
+                  setSearchInput("")
                   updateParams({
                     country: "",
                     jobTitle: "",
                     search: "",
                     page: "",
                   })
-                }
-                className="absolute top-0 right-0 inline-flex size-10 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                }}
+                className="absolute top-0 right-0 inline-flex size-10 shrink-0 items-center justify-center rounded-md border border-muted-foreground/30 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground xl:hidden"
               >
                 <FilterX className="size-4" />
               </button>
@@ -298,16 +323,8 @@ const EmployeesPage = () => {
                 type="search"
                 aria-label="Search employees"
                 placeholder="Search name or email..."
-                value={search}
-                onChange={(event) =>
-                  updateParams(
-                    {
-                      search: event.target.value,
-                      page: "",
-                    },
-                    { replace: true }
-                  )
-                }
+                value={searchInput}
+                onChange={(event) => setSearchInput(event.target.value)}
                 className="h-9 pr-9 pl-9 [&::-webkit-search-cancel-button]:appearance-none [&::-webkit-search-decoration]:appearance-none"
               />
 
@@ -315,9 +332,10 @@ const EmployeesPage = () => {
                 <button
                   type="button"
                   aria-label="Clear search"
-                  onClick={() =>
+                  onClick={() => {
+                    setSearchInput("")
                     updateParams({ search: "", page: "" }, { replace: true })
-                  }
+                  }}
                   className="absolute top-1/2 right-2 flex size-6 -translate-y-1/2 items-center justify-center rounded text-muted-foreground hover:bg-muted hover:text-foreground"
                 >
                   <X aria-hidden="true" className="size-4" />
@@ -354,6 +372,27 @@ const EmployeesPage = () => {
                 </NativeSelectOption>
               ))}
             </NativeSelect>
+
+            {(country || jobTitle || search) && (
+              <button
+                type="button"
+                aria-label="Clear filters"
+                title="Clear filters"
+                onClick={() => {
+                  setSearchInput("")
+
+                  updateParams({
+                    country: "",
+                    jobTitle: "",
+                    search: "",
+                    page: "",
+                  })
+                }}
+                className="hidden size-10 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground xl:inline-flex"
+              >
+                <FilterX className="size-4" />
+              </button>
+            )}
           </div>
         </div>
 
