@@ -49,7 +49,7 @@ export const listEmployeesQuerySchema = z.object({
 
   jobTitle: z.enum(JOB_TITLES).optional(),
 
-  search: z.string().trim().max(30).optional(),
+  search: z.string().trim().max(100).optional(),
 });
 
 export const employeeIdSchema = z.uuidv7();
