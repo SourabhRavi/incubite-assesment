@@ -50,7 +50,10 @@ export const listEmployees = async (query: ListEmployeesQuery) => {
 };
 
 export const getEmployeeById = async (id: string) => {
-  return employeeModel.first({ id });
+  return employeeModel
+    .where((employee) => employee.id.eq(id))
+    .where((employee) => employee.deletedAt.isNull())
+    .first();
 };
 
 export const createEmployee = async (input: CreateEmployeeInput) => {
@@ -72,16 +75,19 @@ export const updateEmployee = async (
 ) => {
   const { country, salary, ...otherFields } = input;
 
-  return employeeModel.where({ id }).update({
-    ...otherFields,
-    ...(country !== undefined
-      ? {
-          country,
-          currency: COUNTRY_CURRENCY_MAP[country],
-        }
-      : {}),
-    ...(salary !== undefined ? { salary: String(salary) } : {}),
-  });
+  return employeeModel
+    .where((employee) => employee.id.eq(id))
+    .where((employee) => employee.deletedAt.isNull())
+    .update({
+      ...otherFields,
+      ...(country !== undefined
+        ? {
+            country,
+            currency: COUNTRY_CURRENCY_MAP[country],
+          }
+        : {}),
+      ...(salary !== undefined ? { salary: String(salary) } : {}),
+    });
 };
 
 export const deleteEmployee = async (id: string) => {
