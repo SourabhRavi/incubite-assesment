@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 
 import employeeRoutes from "./modules/employees/employee.routes.js";
+import analyticsRoutes from "./modules/analytics/analytics.routes.js";
 import { errorHandler } from "./middleware/error.middleware.js";
 
 const app = express();
@@ -15,6 +16,7 @@ app.use(
 
 // routes
 app.use("/api/v1/employees", employeeRoutes);
+app.use("/api/v1/analytics", analyticsRoutes);
 
 // error handler
 app.use(errorHandler);
