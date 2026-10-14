@@ -1,6 +1,15 @@
 import { useState } from "react"
 import { useSearchParams } from "react-router"
-import { Eye, MoreVertical, Pencil, RefreshCw, Trash2 } from "lucide-react"
+import {
+  Eye,
+  FilterX,
+  MoreVertical,
+  Pencil,
+  RefreshCw,
+  Search,
+  Trash2,
+  X,
+} from "lucide-react"
 
 import EmployeeDialog from "@/features/employees/employee-dialog"
 import DeleteEmployeeDialog from "@/features/employees/delete-employee-dialog"
@@ -29,6 +38,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select"
+import { Input } from "@/components/ui/input.tsx"
 
 const PAGE_SIZE_OPTIONS = [10, 20, 50, 100]
 
@@ -134,6 +144,8 @@ const EmployeeRow = ({
 const EmployeesPage = () => {
   const [searchParams, setSearchParams] = useSearchParams()
 
+  const search = searchParams.get("search") ?? ""
+
   const [isEmployeeDialogOpen, setIsEmployeeDialogOpen] = useState(false)
   const [selectedEmployee, setSelectedEmployee] = useState<
     Employee | undefined
@@ -159,7 +171,10 @@ const EmployeesPage = () => {
   const { data, isPending, isError, error, isFetching, refetch } =
     useEmployees(filters)
 
-  const updateParams = (updates: Record<string, string>) => {
+  const updateParams = (
+    updates: Record<string, string>,
+    options?: { replace?: boolean }
+  ) => {
     const nextParams = new URLSearchParams(searchParams)
 
     Object.entries(updates).forEach(([key, value]) => {
@@ -170,7 +185,7 @@ const EmployeesPage = () => {
       }
     })
 
-    setSearchParams(nextParams)
+    setSearchParams(nextParams, options)
   }
 
   const updateFilter = (key: "country" | "jobTitle", value: string) => {
@@ -207,7 +222,7 @@ const EmployeesPage = () => {
     <main className="flex min-h-0 flex-col gap-6 p-4 md:h-full md:overflow-hidden md:p-8">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <p className="text-sm text-muted-foreground">People management</p>
+          {/* <p className="text-sm text-muted-foreground/60">People management</p> */}
 
           <h1 className="mt-1 text-2xl font-semibold tracking-tight">
             Employees
@@ -242,8 +257,8 @@ const EmployeesPage = () => {
       </div>
 
       <section className="flex min-h-0 flex-col rounded-xl border bg-card md:flex-1 md:overflow-hidden">
-        <div className="flex flex-col gap-3 border-b p-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
+        <div className="flex flex-col gap-3 border-b p-4 xl:flex-row xl:items-center xl:justify-between">
+          <div className="relative">
             <h2 className="font-semibold">Employee directory</h2>
 
             <p className="mt-1 text-sm text-muted-foreground">
@@ -251,9 +266,65 @@ const EmployeesPage = () => {
                 ? `${pagination.total.toLocaleString()} employees found`
                 : "Browse and filter employees"}
             </p>
+
+            {(country || jobTitle || search) && (
+              <button
+                type="button"
+                aria-label="Clear filters"
+                title="Clear filters"
+                onClick={() =>
+                  updateParams({
+                    country: "",
+                    jobTitle: "",
+                    search: "",
+                    page: "",
+                  })
+                }
+                className="absolute top-0 right-0 inline-flex size-10 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+              >
+                <FilterX className="size-4" />
+              </button>
+            )}
           </div>
 
           <div className="flex flex-col gap-2 sm:flex-row">
+            <div className="relative w-full sm:w-64">
+              <Search
+                aria-hidden="true"
+                className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
+              />
+
+              <Input
+                type="search"
+                aria-label="Search employees"
+                placeholder="Search name or email..."
+                value={search}
+                onChange={(event) =>
+                  updateParams(
+                    {
+                      search: event.target.value,
+                      page: "",
+                    },
+                    { replace: true }
+                  )
+                }
+                className="h-9 pr-9 pl-9 [&::-webkit-search-cancel-button]:appearance-none [&::-webkit-search-decoration]:appearance-none"
+              />
+
+              {search && (
+                <button
+                  type="button"
+                  aria-label="Clear search"
+                  onClick={() =>
+                    updateParams({ search: "", page: "" }, { replace: true })
+                  }
+                  className="absolute top-1/2 right-2 flex size-6 -translate-y-1/2 items-center justify-center rounded text-muted-foreground hover:bg-muted hover:text-foreground"
+                >
+                  <X aria-hidden="true" className="size-4" />
+                </button>
+              )}
+            </div>
+
             <NativeSelect
               aria-label="Filter by country"
               value={country}
@@ -283,22 +354,6 @@ const EmployeesPage = () => {
                 </NativeSelectOption>
               ))}
             </NativeSelect>
-
-            {(country || jobTitle) && (
-              <button
-                type="button"
-                onClick={() =>
-                  updateParams({
-                    country: "",
-                    jobTitle: "",
-                    page: "",
-                  })
-                }
-                className="h-10 shrink-0 rounded-md px-3 text-sm text-muted-foreground hover:bg-muted hover:text-foreground"
-              >
-                Clear filters
-              </button>
-            )}
           </div>
         </div>
 
@@ -388,7 +443,7 @@ const EmployeesPage = () => {
                   page: "",
                 })
               }}
-              className="w-[84px]"
+              className="w-21"
             >
               {PAGE_SIZE_OPTIONS.map((size) => (
                 <NativeSelectOption key={size} value={String(size)}>
