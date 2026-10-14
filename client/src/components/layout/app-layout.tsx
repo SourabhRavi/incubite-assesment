@@ -48,9 +48,9 @@ const AppLayout = () => {
           </div>
 
           <div className="flex shrink-0 items-center gap-2">
-            <span className="hidden text-xs text-muted-foreground sm:inline">
+            {/* <span className="hidden text-xs text-muted-foreground sm:inline">
               {isDark ? "Dark mode" : "Light mode"}
-            </span>
+            </span> */}
 
             <Button
               type="button"

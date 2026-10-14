@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { useSearchParams } from "react-router"
-import { Eye, MoreVertical, Pencil, Trash2 } from "lucide-react"
+import { Eye, MoreVertical, Pencil, RefreshCw, Trash2 } from "lucide-react"
 
 import EmployeeDialog from "@/features/employees/employee-dialog"
 import DeleteEmployeeDialog from "@/features/employees/delete-employee-dialog"
@@ -223,8 +223,11 @@ const EmployeesPage = () => {
             type="button"
             onClick={() => void refetch()}
             disabled={isFetching}
-            className="inline-flex h-10 items-center justify-center rounded-md border px-4 text-sm font-medium transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50"
+            className="inline-flex h-10 items-center justify-center gap-2 rounded-md border px-4 text-sm font-medium transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50"
           >
+            <RefreshCw
+              className={`size-4 ${isFetching ? "animate-spin" : ""}`}
+            />
             {isFetching ? "Refreshing..." : "Refresh"}
           </button>
 
