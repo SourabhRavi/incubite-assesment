@@ -1,55 +1,23 @@
 import "dotenv/config";
 import { faker } from "@faker-js/faker";
+import {
+  COUNTRY_CURRENCY_MAP,
+  COUNTRIES,
+  JOB_TITLES,
+  type Country,
+} from "../constants/constants.js";
 import { db } from "./db.js";
 
 const TOTAL_EMPLOYEES = 10_000;
 const BATCH_SIZE = 500;
 
-const countrySalaryConfig = [
-  {
-    country: "India",
-    currency: "INR",
-    minSalary: 600_000,
-    maxSalary: 3_000_000,
-  },
-  {
-    country: "United States",
-    currency: "USD",
-    minSalary: 60_000,
-    maxSalary: 200_000,
-  },
-  {
-    country: "United Kingdom",
-    currency: "GBP",
-    minSalary: 35_000,
-    maxSalary: 120_000,
-  },
-  {
-    country: "Germany",
-    currency: "EUR",
-    minSalary: 40_000,
-    maxSalary: 130_000,
-  },
-  {
-    country: "Canada",
-    currency: "CAD",
-    minSalary: 55_000,
-    maxSalary: 170_000,
-  },
-] as const;
-
-const jobTitles = [
-  "Frontend Developer",
-  "Backend Developer",
-  "Full Stack Developer",
-  "Software Engineer",
-  "QA Engineer",
-  "DevOps Engineer",
-  "Data Analyst",
-  "Product Manager",
-  "Engineering Manager",
-  "UI/UX Designer",
-] as const;
+const countrySalaryConfig = {
+  India: { minSalary: 600_000, maxSalary: 3_000_000 },
+  "United States": { minSalary: 60_000, maxSalary: 200_000 },
+  "United Kingdom": { minSalary: 35_000, maxSalary: 120_000 },
+  Germany: { minSalary: 40_000, maxSalary: 130_000 },
+  Canada: { minSalary: 55_000, maxSalary: 170_000 },
+} as const satisfies Record<Country, { minSalary: number; maxSalary: number }>;
 
 const usedEmails = new Set<string>();
 
@@ -73,7 +41,6 @@ function generateEmail(firstName: string, lastName: string): string {
   }
 
   usedEmails.add(email);
-
   return email;
 }
 
@@ -92,8 +59,9 @@ async function main(): Promise<void> {
   for (let start = 0; start < TOTAL_EMPLOYEES; start += BATCH_SIZE) {
     const batchSize = Math.min(BATCH_SIZE, TOTAL_EMPLOYEES - start);
 
-    const employees = Array.from({ length: batchSize }, (_, offset) => {
-      const config = faker.helpers.arrayElement(countrySalaryConfig);
+    const employees = Array.from({ length: batchSize }, () => {
+      const country = faker.helpers.arrayElement(COUNTRIES);
+      const salaryConfig = countrySalaryConfig[country];
 
       const firstName = faker.person.firstName();
       const lastName = faker.person.lastName();
@@ -101,13 +69,13 @@ async function main(): Promise<void> {
       return {
         fullName: `${firstName} ${lastName}`,
         email: generateEmail(firstName, lastName),
-        jobTitle: faker.helpers.arrayElement(jobTitles),
-        country: config.country,
-        currency: config.currency,
+        jobTitle: faker.helpers.arrayElement(JOB_TITLES),
+        country,
+        currency: COUNTRY_CURRENCY_MAP[country],
         salary: String(
           faker.number.int({
-            min: config.minSalary,
-            max: config.maxSalary,
+            min: salaryConfig.minSalary,
+            max: salaryConfig.maxSalary,
           }),
         ),
       };
