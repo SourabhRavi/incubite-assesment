@@ -18,7 +18,7 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'00149a080f11707111cd26bcd14a8c038df82b0e32b80b27e388064bbe0d5a43'>;
+  StorageHashBase<'810f342f4e6d9196e4e9f7ac8575456e486f6049647226954560d0f6af927426'>;
 export type ExecutionHash =
   ExecutionHashBase<'6767ed5a82c40a3e49fee6d089b874a91c48e4dc30b0ab9172472c6d905d601f'>;
 export type ProfileHash =
@@ -238,6 +238,7 @@ export type FieldOutputTypes = {
       readonly country: 'India' | 'United States' | 'United Kingdom' | 'Germany' | 'Canada';
       readonly createdAt: CodecTypes['pg/timestamptz-date@1']['output'];
       readonly currency: 'INR' | 'USD' | 'GBP' | 'EUR' | 'CAD';
+      readonly deletedAt: CodecTypes['pg/timestamptz-date@1']['output'] | null;
       readonly email: CodecTypes['pg/text@1']['output'];
       readonly fullName: CodecTypes['pg/text@1']['output'];
       readonly id: CodecTypes['pg/uuid@1']['output'];
@@ -253,6 +254,7 @@ export type FieldInputTypes = {
       readonly country: 'India' | 'United States' | 'United Kingdom' | 'Germany' | 'Canada';
       readonly createdAt: CodecTypes['pg/timestamptz-date@1']['input'];
       readonly currency: 'INR' | 'USD' | 'GBP' | 'EUR' | 'CAD';
+      readonly deletedAt: CodecTypes['pg/timestamptz-date@1']['input'] | null;
       readonly email: CodecTypes['pg/text@1']['input'];
       readonly fullName: CodecTypes['pg/text@1']['input'];
       readonly id: CodecTypes['pg/uuid@1']['input'];
@@ -268,6 +270,7 @@ export type StorageColumnTypes = {
       readonly country: 'India' | 'United States' | 'United Kingdom' | 'Germany' | 'Canada';
       readonly createdAt: CodecTypes['pg/timestamptz-date@1']['output'];
       readonly currency: 'INR' | 'USD' | 'GBP' | 'EUR' | 'CAD';
+      readonly deletedAt: CodecTypes['pg/timestamptz-date@1']['output'] | null;
       readonly email: CodecTypes['pg/text@1']['output'];
       readonly fullName: CodecTypes['pg/text@1']['output'];
       readonly id: CodecTypes['pg/uuid@1']['output'];
@@ -283,6 +286,7 @@ export type StorageColumnInputTypes = {
       readonly country: 'India' | 'United States' | 'United Kingdom' | 'Germany' | 'Canada';
       readonly createdAt: CodecTypes['pg/timestamptz-date@1']['input'];
       readonly currency: 'INR' | 'USD' | 'GBP' | 'EUR' | 'CAD';
+      readonly deletedAt: CodecTypes['pg/timestamptz-date@1']['input'] | null;
       readonly email: CodecTypes['pg/text@1']['input'];
       readonly fullName: CodecTypes['pg/text@1']['input'];
       readonly id: CodecTypes['pg/uuid@1']['input'];
@@ -298,6 +302,7 @@ export namespace Models {
     country: 'India' | 'United States' | 'United Kingdom' | 'Germany' | 'Canada';
     createdAt: CodecTypes['pg/timestamptz-date@1']['output'];
     currency: 'INR' | 'USD' | 'GBP' | 'EUR' | 'CAD';
+    deletedAt: CodecTypes['pg/timestamptz-date@1']['output'] | null;
     email: CodecTypes['pg/text@1']['output'];
     fullName: CodecTypes['pg/text@1']['output'];
     id: CodecTypes['pg/uuid@1']['output'];
@@ -350,6 +355,12 @@ type ContractBase = Omit<
                   readonly dataType: 'pg/text';
                   readonly codecId: 'pg/text@1';
                   readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly deletedAt: {
+                  readonly dataType: 'pg/timestamptz';
+                  readonly codecId: 'pg/timestamptz-date@1';
+                  readonly nullable: true;
                   readonly many: false;
                 };
                 readonly email: {
@@ -457,6 +468,13 @@ type ContractBase = Omit<
                 readonly nullable: false;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
               };
+              readonly deletedAt: {
+                readonly nullable: true;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamptz-date@1';
+                };
+              };
               readonly email: {
                 readonly nullable: false;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
@@ -493,6 +511,7 @@ type ContractBase = Omit<
                 readonly country: { readonly column: 'country' };
                 readonly createdAt: { readonly column: 'createdAt' };
                 readonly currency: { readonly column: 'currency' };
+                readonly deletedAt: { readonly column: 'deletedAt' };
                 readonly email: { readonly column: 'email' };
                 readonly fullName: { readonly column: 'fullName' };
                 readonly id: { readonly column: 'id' };

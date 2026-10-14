@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState } from "react"
+import { useState } from "react"
 import { useSearchParams } from "react-router"
 
+import EmployeeDialog from "@/features/employees/employee-dialog"
 import { useEmployees } from "@/features/employees/employee-queries"
 import {
   COUNTRIES,
@@ -13,10 +14,18 @@ import type {
   EmployeeFilters,
   JobTitle,
 } from "@/features/employees/employee-types"
-import EmployeeDialog from "@/features/employees/employee-dialog.tsx"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu.tsx"
+import { Eye, MoreVertical, Pencil, Trash2 } from "lucide-react"
+import DeleteEmployeeDialog from "@/features/employees/delete-employee-dialog.tsx"
+import EmployeeDetailsDialog from "@/features/employees/employee-details-dialog.tsx"
 
 const PAGE_SIZE_OPTIONS = [10, 20, 50, 100]
-const SEARCH_DEBOUNCE_MS = 300
 
 const formatSalary = (salary: number | string, currency?: string) => {
   const amount = Number(salary)
@@ -40,49 +49,19 @@ const getInitials = (fullName: string) =>
     .map((part) => part[0]?.toUpperCase() ?? "")
     .join("")
 
-type EmployeeSearchProps = {
-  initialValue: string
-  onSearch: (value: string) => void
+type EmployeeRowProps = {
+  employee: Employee
+  onView: (employee: Employee) => void
+  onEdit: (employee: Employee) => void
+  onDelete: (employee: Employee) => void
 }
 
-const EmployeeSearch = ({ initialValue, onSearch }: EmployeeSearchProps) => {
-  const [value, setValue] = useState(initialValue)
-  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-
-  useEffect(
-    () => () => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current)
-      }
-    },
-    []
-  )
-
-  const handleChange = (nextValue: string) => {
-    setValue(nextValue)
-
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current)
-    }
-
-    timeoutRef.current = setTimeout(() => {
-      onSearch(nextValue.trim())
-    }, SEARCH_DEBOUNCE_MS)
-  }
-
-  return (
-    <input
-      type="search"
-      aria-label="Search employees by name or email"
-      placeholder="Search by name or email..."
-      value={value}
-      onChange={(event) => handleChange(event.target.value)}
-      className="h-10 min-w-0 rounded-md border bg-background px-3 text-sm transition-colors outline-none placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring"
-    />
-  )
-}
-
-const EmployeeRow = ({ employee }: { employee: Employee }) => (
+const EmployeeRow = ({
+  employee,
+  onView,
+  onEdit,
+  onDelete,
+}: EmployeeRowProps) => (
   <tr className="border-b last:border-0 hover:bg-muted/40">
     <td className="px-5 py-4">
       <div className="flex items-center gap-3">
@@ -108,12 +87,69 @@ const EmployeeRow = ({ employee }: { employee: Employee }) => (
     <td className="px-5 py-4 text-right text-sm font-medium tabular-nums">
       {formatSalary(employee.salary, COUNTRY_CURRENCIES[employee.country])}
     </td>
+
+    <td className="px-5 py-4 text-right">
+      <DropdownMenu>
+        <DropdownMenuTrigger>
+          <button
+            type="button"
+            aria-label={`Actions for ${employee.fullName}`}
+            className="inline-flex size-9 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+          >
+            <MoreVertical className="size-4" />
+          </button>
+        </DropdownMenuTrigger>
+
+        <DropdownMenuContent align="end" className="w-44">
+          <DropdownMenuItem onClick={() => onView(employee)}>
+            <Eye className="mr-2 size-4" />
+            View details
+          </DropdownMenuItem>
+
+          <DropdownMenuItem onClick={() => onEdit(employee)}>
+            <Pencil className="mr-2 size-4" />
+            Edit employee
+          </DropdownMenuItem>
+
+          <DropdownMenuSeparator />
+
+          <DropdownMenuItem
+            onClick={() => onDelete(employee)}
+            className="text-destructive focus:text-destructive"
+          >
+            <Trash2 className="mr-2 size-4" />
+            Delete employee
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </td>
   </tr>
 )
 
 const EmployeesPage = () => {
   const [searchParams, setSearchParams] = useSearchParams()
-  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
+  const [isEmployeeDialogOpen, setIsEmployeeDialogOpen] = useState(false)
+
+  const [selectedEmployee, setSelectedEmployee] = useState<
+    Employee | undefined
+  >()
+  const [isViewDialogOpen, setIsViewDialogOpen] = useState(false)
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
+
+  const openViewDialog = (employee: Employee) => {
+    setSelectedEmployee(employee)
+    setIsViewDialogOpen(true)
+  }
+
+  const openEditDialog = (employee: Employee) => {
+    setSelectedEmployee(employee)
+    setIsEmployeeDialogOpen(true)
+  }
+
+  const openDeleteDialog = (employee: Employee) => {
+    setSelectedEmployee(employee)
+    setIsDeleteDialogOpen(true)
+  }
 
   const page = Math.max(1, Number(searchParams.get("page")) || 1)
   const parsedLimit = Number(searchParams.get("limit")) || 20
@@ -121,12 +157,10 @@ const EmployeesPage = () => {
 
   const country = searchParams.get("country") || ""
   const jobTitle = searchParams.get("jobTitle") || ""
-  const search = searchParams.get("search") || ""
 
   const filters: EmployeeFilters = {
     page,
     limit,
-    ...(search ? { search } : {}),
     ...(country ? { country: country as Country } : {}),
     ...(jobTitle ? { jobTitle: jobTitle as JobTitle } : {}),
   }
@@ -148,48 +182,17 @@ const EmployeesPage = () => {
     setSearchParams(nextParams)
   }
 
-  const updateSearch = (nextSearch: string) => {
-    const currentSearch = searchParams.get("search") || ""
-
-    if (nextSearch === currentSearch) {
-      return
-    }
-
-    const nextParams = new URLSearchParams(searchParams)
-
-    if (nextSearch) {
-      nextParams.set("search", nextSearch)
-    } else {
-      nextParams.delete("search")
-    }
-
-    nextParams.delete("page")
-    setSearchParams(nextParams)
-  }
-
   const updateFilter = (key: "country" | "jobTitle", value: string) => {
-    updateParams({
-      [key]: value,
-      page: "",
-    })
+    updateParams({ [key]: value, page: "" })
   }
 
-  const clearFilters = () => {
-    setSearchParams((currentParams) => {
-      const nextParams = new URLSearchParams(currentParams)
-
-      nextParams.delete("search")
-      nextParams.delete("country")
-      nextParams.delete("jobTitle")
-      nextParams.delete("page")
-
-      return nextParams
-    })
+  const openAddDialog = () => {
+    setSelectedEmployee(undefined)
+    setIsEmployeeDialogOpen(true)
   }
 
   const pagination = data?.pagination
   const employees = data?.data ?? []
-  const hasFilters = Boolean(search || country || jobTitle)
 
   return (
     <main className="space-y-6 p-4 md:p-8">
@@ -218,7 +221,7 @@ const EmployeesPage = () => {
 
           <button
             type="button"
-            onClick={() => setIsAddDialogOpen(true)}
+            onClick={openAddDialog}
             className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
           >
             + Add Employee
@@ -227,7 +230,7 @@ const EmployeesPage = () => {
       </div>
 
       <section className="rounded-xl border bg-card">
-        <div className="flex flex-col gap-3 border-b p-4">
+        <div className="flex flex-col gap-3 border-b p-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h2 className="font-semibold">Employee directory</h2>
             <p className="mt-1 text-sm text-muted-foreground">
@@ -237,13 +240,7 @@ const EmployeesPage = () => {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-[minmax(220px,1fr)_200px_220px_auto]">
-            <EmployeeSearch
-              key={search}
-              initialValue={search}
-              onSearch={updateSearch}
-            />
-
+          <div className="flex flex-col gap-2 sm:flex-row">
             <select
               aria-label="Filter by country"
               value={country}
@@ -272,10 +269,16 @@ const EmployeesPage = () => {
               ))}
             </select>
 
-            {hasFilters && (
+            {(country || jobTitle) && (
               <button
                 type="button"
-                onClick={clearFilters}
+                onClick={() =>
+                  updateParams({
+                    country: "",
+                    jobTitle: "",
+                    page: "",
+                  })
+                }
                 className="h-10 rounded-md px-3 text-sm text-muted-foreground hover:bg-muted hover:text-foreground"
               >
                 Clear filters
@@ -295,7 +298,6 @@ const EmployeesPage = () => {
                 ? error.message
                 : "An unexpected error occurred."}
             </p>
-
             <button
               type="button"
               onClick={() => void refetch()}
@@ -307,13 +309,14 @@ const EmployeesPage = () => {
         )}
 
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[760px] text-left">
+          <table className="w-full min-w-212.5 text-left">
             <thead className="bg-muted/40 text-xs tracking-wide text-muted-foreground uppercase">
               <tr>
                 <th className="px-5 py-3 font-medium">Employee</th>
                 <th className="px-5 py-3 font-medium">Job title</th>
                 <th className="px-5 py-3 font-medium">Country</th>
                 <th className="px-5 py-3 text-right font-medium">Salary</th>
+                <th className="px-5 py-3 text-right font-medium">Actions</th>
               </tr>
             </thead>
 
@@ -321,7 +324,7 @@ const EmployeesPage = () => {
               {isPending &&
                 Array.from({ length: 5 }, (_, index) => (
                   <tr key={index} className="border-b">
-                    <td colSpan={4} className="px-5 py-5">
+                    <td colSpan={5} className="px-5 py-5">
                       <div className="h-5 animate-pulse rounded bg-muted" />
                     </td>
                   </tr>
@@ -329,7 +332,7 @@ const EmployeesPage = () => {
 
               {!isPending && !isError && employees.length === 0 && (
                 <tr>
-                  <td colSpan={4} className="px-5 py-16 text-center">
+                  <td colSpan={5} className="px-5 py-16 text-center">
                     <p className="font-medium">No employees found</p>
                     <p className="mt-1 text-sm text-muted-foreground">
                       Try changing or clearing your filters.
@@ -341,7 +344,12 @@ const EmployeesPage = () => {
               {!isPending &&
                 !isError &&
                 employees.map((employee) => (
-                  <EmployeeRow key={employee.id} employee={employee} />
+                  <EmployeeRow
+                    employee={employee}
+                    onView={openViewDialog}
+                    onEdit={openEditDialog}
+                    onDelete={openDeleteDialog}
+                  />
                 ))}
             </tbody>
           </table>
@@ -350,7 +358,6 @@ const EmployeesPage = () => {
         <div className="flex flex-col gap-3 border-t p-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <label htmlFor="page-size">Rows per page</label>
-
             <select
               id="page-size"
               value={limit}
@@ -395,9 +402,23 @@ const EmployeesPage = () => {
           </div>
         </div>
       </section>
+
+      <EmployeeDetailsDialog
+        open={isViewDialogOpen}
+        onOpenChange={setIsViewDialogOpen}
+        employee={selectedEmployee}
+      />
+
       <EmployeeDialog
-        open={isAddDialogOpen}
-        onOpenChange={setIsAddDialogOpen}
+        open={isEmployeeDialogOpen}
+        onOpenChange={setIsEmployeeDialogOpen}
+        employee={selectedEmployee}
+      />
+
+      <DeleteEmployeeDialog
+        open={isDeleteDialogOpen}
+        onOpenChange={setIsDeleteDialogOpen}
+        employee={selectedEmployee}
       />
     </main>
   )

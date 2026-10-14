@@ -21,15 +21,19 @@ export const listEmployees = async (query: ListEmployeesQuery) => {
 
   const [employees, { total }] = await Promise.all([
     employeeModel
+      .where((employee) => employee.deletedAt.isNull())
       .where(where)
       .orderBy((employee) => employee.id.asc())
       .offset((page - 1) * limit)
       .limit(limit)
       .all(),
 
-    employeeModel.where(where).aggregate((aggregate) => ({
-      total: aggregate.count(),
-    })),
+    employeeModel
+      .where((employee) => employee.deletedAt.isNull())
+      .where(where)
+      .aggregate((aggregate) => ({
+        total: aggregate.count(),
+      })),
   ]);
 
   return {
@@ -81,5 +85,7 @@ export const updateEmployee = async (
 };
 
 export const deleteEmployee = async (id: string) => {
-  return employeeModel.where({ id }).delete();
+  return employeeModel
+    .where({ id: id, deletedAt: null })
+    .update({ deletedAt: new Date() });
 };

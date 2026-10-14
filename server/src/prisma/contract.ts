@@ -37,6 +37,7 @@ export const contract = defineContract({}, ({ field, model, rel }) => {
       currency: field.namedType(Currency),
       createdAt: field.temporal.createdAtJsDate(),
       updatedAt: field.temporal.updatedAtJsDate(),
+      deletedAt: field.temporal.timestamptzJsDate().optional(),
     },
   });
 
