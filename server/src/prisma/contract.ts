@@ -1,36 +1,38 @@
-import { defineContract } from '@prisma/orm-postgres/contract-builder';
+import { check, defineContract } from "@prisma/orm-postgres/contract-builder";
 
 export const contract = defineContract({}, ({ field, model, rel }) => {
-  const User = model('User', {
+  const Employee = model("Employee", {
     fields: {
-      id: field.id.uuidv7String(),
+      id: field.id.uuidv7Native(),
+      fullName: field.text(),
       email: field.text().unique(),
-      username: field.text().optional(),
-      name: field.text().optional(),
-      createdAt: field.temporal.createdAtString(),
-      updatedAt: field.temporal.updatedAtString(),
-    },
-  });
-
-  const Post = model('Post', {
-    fields: {
-      id: field.id.uuidv7String(),
-      title: field.text(),
-      content: field.text().optional(),
-      authorId: field.uuidString(),
-      createdAt: field.temporal.createdAtString(),
-      updatedAt: field.temporal.updatedAtString(),
+      jobTitle: field.text(),
+      country: field.text(),
+      salary: field.decimal(),
+      createdAt: field.temporal.createdAtJsDate(),
+      updatedAt: field.temporal.updatedAtJsDate(),
     },
   });
 
   return {
     models: {
-      User: User.relations({
-        posts: rel.hasMany(Post, { by: 'authorId' }),
-      }),
-      Post: Post.relations({
-        author: rel.belongsTo(User, { from: 'authorId', to: 'id' }),
-      }),
+      Employee: Employee.sql(({ cols, constraints }) => ({
+        table: "employees",
+        indexes: [
+          constraints.index([cols.country], {
+            name: "employees_country_idx",
+          }),
+          constraints.index([cols.country, cols.jobTitle], {
+            name: "employees_country_job_title_idx",
+          }),
+        ],
+        checks: [
+          check({
+            expression: "salary >= 0",
+            name: "employees_salary_nonnegative",
+          }),
+        ],
+      })),
     },
   };
 });

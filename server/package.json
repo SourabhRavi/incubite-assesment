@@ -9,7 +9,7 @@
     "contract:emit": "prisma contract emit"
   },
   "keywords": [],
-  "type": "commonjs",
+  "type": "module",
   "dependencies": {
     "@prisma/orm-postgres": "^8.0.0-rc.17",
     "axios": "^1.20.0",

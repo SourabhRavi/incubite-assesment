@@ -1,0 +1,178 @@
+[
+  {
+    "id": "schema.public",
+    "label": "Create schema \"public\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres"
+    },
+    "precheck": [],
+    "execute": [
+      {
+        "description": "Create schema \"public\"",
+        "sql": "CREATE SCHEMA IF NOT EXISTS \"public\"",
+        "params": []
+      }
+    ],
+    "postcheck": []
+  },
+  {
+    "id": "table.employees",
+    "label": "Create table \"employees\"",
+    "summary": "Creates table \"employees\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "employees"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"employees\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"employees\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"employees\"",
+        "sql": "CREATE TABLE \"public\".\"employees\" (\n  \"country\" text NOT NULL,\n  \"createdAt\" timestamptz NOT NULL,\n  \"email\" text NOT NULL,\n  \"fullName\" text NOT NULL,\n  \"id\" uuid NOT NULL,\n  \"jobTitle\" text NOT NULL,\n  \"salary\" numeric NOT NULL,\n  \"updatedAt\" timestamptz NOT NULL,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"employees_salary_nonnegative_238dd4cc\" CHECK (salary >= 0)\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"employees\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"employees\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.employees.employees_email_key",
+    "label": "Add unique constraint on \"employees\" (email)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "employees_email_key",
+        "table": "employees"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"employees_email_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "employees_email_key",
+          "public",
+          "\"public\".\"employees\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"employees_email_key\"",
+        "sql": "ALTER TABLE \"public\".\"employees\" ADD CONSTRAINT \"employees_email_key\" UNIQUE (\"email\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"employees_email_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "employees_email_key",
+          "public",
+          "\"public\".\"employees\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.employees.employees_country_idx_c3994778",
+    "label": "Create index \"employees_country_idx_c3994778\" on \"employees\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "employees_country_idx_c3994778",
+        "table": "employees"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"employees_country_idx_c3994778\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"employees_country_idx_c3994778\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"employees_country_idx_c3994778\"",
+        "sql": "CREATE INDEX \"employees_country_idx_c3994778\" ON \"public\".\"employees\" (\"country\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"employees_country_idx_c3994778\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"employees_country_idx_c3994778\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.employees.employees_country_job_title_idx_ab97ab9f",
+    "label": "Create index \"employees_country_job_title_idx_ab97ab9f\" on \"employees\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "employees_country_job_title_idx_ab97ab9f",
+        "table": "employees"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"employees_country_job_title_idx_ab97ab9f\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"employees_country_job_title_idx_ab97ab9f\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"employees_country_job_title_idx_ab97ab9f\"",
+        "sql": "CREATE INDEX \"employees_country_job_title_idx_ab97ab9f\" ON \"public\".\"employees\" (\"country\", \"jobTitle\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"employees_country_job_title_idx_ab97ab9f\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"employees_country_job_title_idx_ab97ab9f\""
+        ]
+      }
+    ]
+  }
+]
