@@ -19,12 +19,9 @@ import {
   type Country,
 } from "@/features/employees/employee-types"
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select.tsx"
+  NativeSelect,
+  NativeSelectOption,
+} from "@/components/ui/native-select.tsx"
 
 const formatMoney = (
   value: number | string | null | undefined,
@@ -145,31 +142,31 @@ const OverviewPage = () => {
           </p>
         </div>
 
-        <div className="flex flex-col gap-1.5">
-          <label className="text-xs font-medium text-muted-foreground">
-            Country
-          </label>
+        <div className="flex items-end gap-1.5">
+          <div className="flex flex-col justify-end gap-1.5">
+            <label
+              htmlFor="overview-country"
+              className="text-xs font-medium text-muted-foreground"
+            >
+              Country
+            </label>
 
-          <Select
-            value={selectedCountry}
-            onValueChange={(value) => {
-              if (value) {
-                setSelectedCountry(value as Country)
-              }
-            }}
-          >
-            <SelectTrigger className="h-9 w-full min-w-48 sm:w-48">
-              <SelectValue placeholder="Select country" />
-            </SelectTrigger>
-
-            <SelectContent align="start">
+            <NativeSelect
+              id="overview-country"
+              value={selectedCountry}
+              onChange={(event) => {
+                setSelectedCountry(event.target.value as Country)
+              }}
+              className="w-full min-w-48 sm:w-48"
+              size="lg"
+            >
               {COUNTRIES.map((country) => (
-                <SelectItem key={country} value={country}>
+                <NativeSelectOption key={country} value={country}>
                   {country}
-                </SelectItem>
+                </NativeSelectOption>
               ))}
-            </SelectContent>
-          </Select>
+            </NativeSelect>
+          </div>
 
           <button
             type="button"
@@ -279,8 +276,8 @@ const OverviewPage = () => {
             Loading salary breakdown...
           </div>
         ) : jobSummaries.length > 0 ? (
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[480px] text-left text-sm">
+          <div className="scrollbar-auto overflow-x-auto">
+            <table className="w-full min-w-120 text-left text-sm">
               <thead className="bg-muted/35 text-xs text-muted-foreground">
                 <tr>
                   <th className="px-5 py-3 font-medium">Job title</th>

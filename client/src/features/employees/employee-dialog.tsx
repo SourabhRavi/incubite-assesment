@@ -19,6 +19,7 @@ import type {
   Employee,
   UpdateEmployeeInput,
 } from "@/features/employees/employee-types"
+import { Separator } from "@/components/ui/separator.tsx"
 
 type EmployeeDialogProps = {
   open: boolean
@@ -90,6 +91,8 @@ const EmployeeDialog = ({
               : "Enter the employee's details to add them to your directory."}
           </DialogDescription>
         </DialogHeader>
+
+        <Separator />
 
         {submitError && (
           <div

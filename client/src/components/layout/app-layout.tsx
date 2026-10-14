@@ -1,43 +1,53 @@
-import { useState } from "react"
 import { Outlet, useLocation } from "react-router"
 import { Moon, Sun } from "lucide-react"
 
-import { Button } from "@/components/ui/button"
 import { useTheme } from "@/components/theme-provider"
-import AppSidebar from "@/components/app-sidebar.tsx"
+import { Button } from "@/components/ui/button"
+import {
+  SidebarInset,
+  SidebarProvider,
+  SidebarTrigger,
+} from "@/components/ui/sidebar"
+import { AppSidebar } from "@/components/app-sidebar.tsx"
 
 const pageTitles: Record<string, string> = {
   "/overview": "Overview",
   "/employees": "Employees",
 }
 
-export default function AppLayout() {
+const AppLayout = () => {
   const { pathname } = useLocation()
   const title = pageTitles[pathname] ?? "PeopleOps"
+  const isEmployeesPage = pathname === "/employees"
+
   const { theme, setTheme } = useTheme()
-  const [mounted, setMounted] = useState(false)
-
-  // Avoid rendering a theme-dependent icon until the first client render.
-  if (!mounted) {
-    setMounted(true)
-  }
-
   const isDark = theme === "dark"
 
   return (
-    <div className="min-h-svh bg-background lg:flex">
+    <SidebarProvider
+      defaultOpen={true}
+      // className="h-svh! min-h-0! w-full overflow-hidden bg-background"
+    >
       <AppSidebar />
 
-      <div className="flex min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-20 flex h-16 shrink-0 items-center justify-between gap-3 border-b bg-background/95 px-4 backdrop-blur sm:px-8">
-          <div>
-            <p className="text-sm font-medium">{title}</p>
-            <p className="hidden text-xs text-muted-foreground sm:block">
-              PeopleOps / {title}
-            </p>
+      <SidebarInset className="h-svh min-h-0 min-w-0 overflow-x-hidden overflow-y-auto bg-background md:overflow-hidden">
+        <header className="sticky top-0 z-20 flex h-14 shrink-0 items-center justify-between gap-3 border-b border-border/70 bg-background/85 px-3 backdrop-blur-xl supports-backdrop-filter:bg-background/70 sm:h-16 sm:px-6">
+          <div className="flex min-w-0 items-center gap-2">
+            <SidebarTrigger
+              className="shrink-0"
+              aria-label="Toggle navigation sidebar"
+              title="Toggle navigation sidebar"
+            />
+
+            <div className="min-w-0">
+              <p className="truncate text-sm font-medium">{title}</p>
+              <p className="hidden text-xs text-muted-foreground sm:block">
+                PeopleOps / {title}
+              </p>
+            </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex shrink-0 items-center gap-2">
             <span className="hidden text-xs text-muted-foreground sm:inline">
               {isDark ? "Dark mode" : "Light mode"}
             </span>
@@ -59,10 +69,18 @@ export default function AppLayout() {
           </div>
         </header>
 
-        <main className="mx-auto w-full max-w-[1440px] flex-1 p-4 sm:p-6 lg:p-8">
+        <div
+          className={
+            isEmployeesPage
+              ? "mx-auto w-full max-w-7xl md:flex md:min-h-0 md:flex-1 md:flex-col md:overflow-hidden"
+              : "mx-auto w-full max-w-7xl flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8"
+          }
+        >
           <Outlet />
-        </main>
-      </div>
-    </div>
+        </div>
+      </SidebarInset>
+    </SidebarProvider>
   )
 }
+
+export default AppLayout

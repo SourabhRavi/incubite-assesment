@@ -1,29 +1,34 @@
 import { useState } from "react"
 import { useSearchParams } from "react-router"
+import { Eye, MoreVertical, Pencil, Trash2 } from "lucide-react"
 
 import EmployeeDialog from "@/features/employees/employee-dialog"
+import DeleteEmployeeDialog from "@/features/employees/delete-employee-dialog"
+import EmployeeDetailsDialog from "@/features/employees/employee-details-dialog"
 import { useEmployees } from "@/features/employees/employee-queries"
+
 import {
   COUNTRIES,
   COUNTRY_CURRENCIES,
   JOB_TITLES,
 } from "@/features/employees/employee-types"
+
 import type {
   Country,
   Employee,
   EmployeeFilters,
   JobTitle,
 } from "@/features/employees/employee-types"
+
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu.tsx"
-import { Eye, MoreVertical, Pencil, Trash2 } from "lucide-react"
-import DeleteEmployeeDialog from "@/features/employees/delete-employee-dialog.tsx"
-import EmployeeDetailsDialog from "@/features/employees/employee-details-dialog.tsx"
+} from "@/components/ui/dropdown-menu"
+
+import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select"
 
 const PAGE_SIZE_OPTIONS = [10, 20, 50, 100]
 
@@ -128,30 +133,16 @@ const EmployeeRow = ({
 
 const EmployeesPage = () => {
   const [searchParams, setSearchParams] = useSearchParams()
-  const [isEmployeeDialogOpen, setIsEmployeeDialogOpen] = useState(false)
 
+  const [isEmployeeDialogOpen, setIsEmployeeDialogOpen] = useState(false)
   const [selectedEmployee, setSelectedEmployee] = useState<
     Employee | undefined
   >()
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
 
-  const openViewDialog = (employee: Employee) => {
-    setSelectedEmployee(employee)
-    setIsViewDialogOpen(true)
-  }
-
-  const openEditDialog = (employee: Employee) => {
-    setSelectedEmployee(employee)
-    setIsEmployeeDialogOpen(true)
-  }
-
-  const openDeleteDialog = (employee: Employee) => {
-    setSelectedEmployee(employee)
-    setIsDeleteDialogOpen(true)
-  }
-
   const page = Math.max(1, Number(searchParams.get("page")) || 1)
+
   const parsedLimit = Number(searchParams.get("limit")) || 20
   const limit = PAGE_SIZE_OPTIONS.includes(parsedLimit) ? parsedLimit : 20
 
@@ -183,7 +174,25 @@ const EmployeesPage = () => {
   }
 
   const updateFilter = (key: "country" | "jobTitle", value: string) => {
-    updateParams({ [key]: value, page: "" })
+    updateParams({
+      [key]: value,
+      page: "",
+    })
+  }
+
+  const openViewDialog = (employee: Employee) => {
+    setSelectedEmployee(employee)
+    setIsViewDialogOpen(true)
+  }
+
+  const openEditDialog = (employee: Employee) => {
+    setSelectedEmployee(employee)
+    setIsEmployeeDialogOpen(true)
+  }
+
+  const openDeleteDialog = (employee: Employee) => {
+    setSelectedEmployee(employee)
+    setIsDeleteDialogOpen(true)
   }
 
   const openAddDialog = () => {
@@ -195,7 +204,7 @@ const EmployeesPage = () => {
   const employees = data?.data ?? []
 
   return (
-    <main className="space-y-6 p-4 md:p-8">
+    <main className="flex min-h-0 flex-col gap-6 p-4 md:h-full md:overflow-hidden md:p-8">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <p className="text-sm text-muted-foreground">People management</p>
@@ -229,10 +238,11 @@ const EmployeesPage = () => {
         </div>
       </div>
 
-      <section className="rounded-xl border bg-card">
+      <section className="flex min-h-0 flex-col rounded-xl border bg-card md:flex-1 md:overflow-hidden">
         <div className="flex flex-col gap-3 border-b p-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h2 className="font-semibold">Employee directory</h2>
+
             <p className="mt-1 text-sm text-muted-foreground">
               {pagination
                 ? `${pagination.total.toLocaleString()} employees found`
@@ -241,33 +251,35 @@ const EmployeesPage = () => {
           </div>
 
           <div className="flex flex-col gap-2 sm:flex-row">
-            <select
+            <NativeSelect
               aria-label="Filter by country"
               value={country}
               onChange={(event) => updateFilter("country", event.target.value)}
-              className="h-10 rounded-md border bg-background px-3 text-sm"
+              className="w-full sm:w-44"
             >
-              <option value="">All countries</option>
-              {COUNTRIES.map((item) => (
-                <option key={item} value={item}>
-                  {item}
-                </option>
-              ))}
-            </select>
+              <NativeSelectOption value="">All countries</NativeSelectOption>
 
-            <select
+              {COUNTRIES.map((item) => (
+                <NativeSelectOption key={item} value={item}>
+                  {item}
+                </NativeSelectOption>
+              ))}
+            </NativeSelect>
+
+            <NativeSelect
               aria-label="Filter by job title"
               value={jobTitle}
               onChange={(event) => updateFilter("jobTitle", event.target.value)}
-              className="h-10 rounded-md border bg-background px-3 text-sm"
+              className="w-full sm:w-48"
             >
-              <option value="">All job titles</option>
+              <NativeSelectOption value="">All job titles</NativeSelectOption>
+
               {JOB_TITLES.map((item) => (
-                <option key={item} value={item}>
+                <NativeSelectOption key={item} value={item}>
                   {item}
-                </option>
+                </NativeSelectOption>
               ))}
-            </select>
+            </NativeSelect>
 
             {(country || jobTitle) && (
               <button
@@ -279,7 +291,7 @@ const EmployeesPage = () => {
                     page: "",
                   })
                 }
-                className="h-10 rounded-md px-3 text-sm text-muted-foreground hover:bg-muted hover:text-foreground"
+                className="h-10 shrink-0 rounded-md px-3 text-sm text-muted-foreground hover:bg-muted hover:text-foreground"
               >
                 Clear filters
               </button>
@@ -293,11 +305,13 @@ const EmployeesPage = () => {
             className="m-4 rounded-lg border border-destructive/30 bg-destructive/5 p-4"
           >
             <p className="font-medium">Couldn't load employees</p>
+
             <p className="mt-1 text-sm text-muted-foreground">
               {error instanceof Error
                 ? error.message
                 : "An unexpected error occurred."}
             </p>
+
             <button
               type="button"
               onClick={() => void refetch()}
@@ -308,9 +322,9 @@ const EmployeesPage = () => {
           </div>
         )}
 
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto md:min-h-0 md:flex-1 md:overflow-auto">
           <table className="w-full min-w-212.5 text-left">
-            <thead className="bg-muted/40 text-xs tracking-wide text-muted-foreground uppercase">
+            <thead className="bg-background/80 text-xs tracking-wide text-muted-foreground uppercase md:sticky md:top-0 md:z-10 md:border-b md:border-border/50 md:shadow-sm md:backdrop-blur-xl">
               <tr>
                 <th className="px-5 py-3 font-medium">Employee</th>
                 <th className="px-5 py-3 font-medium">Job title</th>
@@ -334,6 +348,7 @@ const EmployeesPage = () => {
                 <tr>
                   <td colSpan={5} className="px-5 py-16 text-center">
                     <p className="font-medium">No employees found</p>
+
                     <p className="mt-1 text-sm text-muted-foreground">
                       Try changing or clearing your filters.
                     </p>
@@ -345,6 +360,7 @@ const EmployeesPage = () => {
                 !isError &&
                 employees.map((employee) => (
                   <EmployeeRow
+                    key={employee.id}
                     employee={employee}
                     onView={openViewDialog}
                     onEdit={openEditDialog}
@@ -358,23 +374,25 @@ const EmployeesPage = () => {
         <div className="flex flex-col gap-3 border-t p-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <label htmlFor="page-size">Rows per page</label>
-            <select
+
+            <NativeSelect
               id="page-size"
-              value={limit}
-              onChange={(event) =>
+              aria-label="Rows per page"
+              value={String(limit)}
+              onChange={(event) => {
                 updateParams({
                   limit: event.target.value,
                   page: "",
                 })
-              }
-              className="h-9 rounded-md border bg-background px-2 text-sm text-foreground"
+              }}
+              className="w-[84px]"
             >
               {PAGE_SIZE_OPTIONS.map((size) => (
-                <option key={size} value={size}>
+                <NativeSelectOption key={size} value={String(size)}>
                   {size}
-                </option>
+                </NativeSelectOption>
               ))}
-            </select>
+            </NativeSelect>
           </div>
 
           <div className="flex items-center justify-between gap-3 sm:justify-end">

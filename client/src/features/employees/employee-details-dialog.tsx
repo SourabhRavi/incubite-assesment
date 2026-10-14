@@ -5,6 +5,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+import { Separator } from "@/components/ui/separator.tsx"
 import {
   COUNTRY_CURRENCIES,
   type Employee,
@@ -47,7 +48,7 @@ const formatDate = (value: string) => {
 const DetailItem = ({ label, value }: { label: string; value: string }) => (
   <div className="space-y-1">
     <p className="text-sm text-muted-foreground">{label}</p>
-    <p className="text-sm font-medium break-words">
+    <p className="text-sm font-medium wrap-break-word">
       {value || "Not available"}
     </p>
   </div>
@@ -66,6 +67,8 @@ const EmployeeDetailsDialog = ({
           View the employee's information and record timestamps.
         </DialogDescription>
       </DialogHeader>
+
+      <Separator />
 
       {employee && (
         <div className="grid grid-cols-1 gap-5 py-2 sm:grid-cols-2">
