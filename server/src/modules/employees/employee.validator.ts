@@ -48,6 +48,8 @@ export const listEmployeesQuerySchema = z.object({
   country: z.enum(COUNTRIES).optional(),
 
   jobTitle: z.enum(JOB_TITLES).optional(),
+
+  search: z.string().trim().max(30).optional(),
 });
 
 export const employeeIdSchema = z.uuidv7();

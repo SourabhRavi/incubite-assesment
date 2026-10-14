@@ -1,3 +1,5 @@
+import { or } from "@prisma/orm-postgres/orm-client";
+
 import { db } from "../../prisma/db.js";
 import {
   COUNTRY_CURRENCY_MAP,
@@ -12,28 +14,54 @@ import type {
 const employeeModel = db.orm.public.Employee;
 
 export const listEmployees = async (query: ListEmployeesQuery) => {
-  const { page, limit, country, jobTitle } = query;
+  const { page, limit, country, jobTitle, search } = query;
 
   const where = {
     ...(country ? { country } : {}),
     ...(jobTitle ? { jobTitle } : {}),
   };
 
+  const employeesQuery = employeeModel
+    .where((employee) => employee.deletedAt.isNull())
+    .where(where);
+
+  const countQuery = employeeModel
+    .where((employee) => employee.deletedAt.isNull())
+    .where(where);
+
+  // Ordinary case-insensitive substring search across name and email.
+  const filteredEmployees = search
+    ? employeesQuery.where((employee) =>
+        or(
+          employee.fullName.ilike(`%${search}%`),
+          employee.email.ilike(`%${search}%`),
+        ),
+      )
+    : employeesQuery;
+
+  const filteredCount = search
+    ? countQuery
+        .where((employee) =>
+          or(
+            employee.fullName.ilike(`%${search}%`),
+            employee.email.ilike(`%${search}%`),
+          ),
+        )
+        .aggregate((aggregate) => ({
+          total: aggregate.count(),
+        }))
+    : countQuery.aggregate((aggregate) => ({
+        total: aggregate.count(),
+      }));
+
   const [employees, { total }] = await Promise.all([
-    employeeModel
-      .where((employee) => employee.deletedAt.isNull())
-      .where(where)
+    filteredEmployees
       .orderBy((employee) => employee.id.asc())
       .offset((page - 1) * limit)
       .limit(limit)
       .all(),
 
-    employeeModel
-      .where((employee) => employee.deletedAt.isNull())
-      .where(where)
-      .aggregate((aggregate) => ({
-        total: aggregate.count(),
-      })),
+    filteredCount,
   ]);
 
   return {
