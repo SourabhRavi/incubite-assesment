@@ -1,6 +1,6 @@
 #!/usr/bin/env -S node
-import type { Contract as End } from '../../snapshots/6e0ea442d887c1cccbf70e812aad19c0a8c42ceaa18911d1cf15fdd84bca6968/contract';
-import endContract from '../../snapshots/6e0ea442d887c1cccbf70e812aad19c0a8c42ceaa18911d1cf15fdd84bca6968/contract.json' with { type: 'json' };
+import type { Contract as End } from '../../snapshots/156d6ecfb9c118f0ceeffc445d3305613bdc6245945b17292bf5c75adec739b0/contract';
+import endContract from '../../snapshots/156d6ecfb9c118f0ceeffc445d3305613bdc6245945b17292bf5c75adec739b0/contract.json' with { type: 'json' };
 import {
   Migration,
   MigrationCLI,
@@ -24,6 +24,7 @@ export default class M extends Migration<never, End> {
             notNull: true,
             codecRef: { codecId: 'pg/timestamptz-date@1' },
           }),
+          col('currency', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
           col('email', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
           col('fullName', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
           col('id', 'uuid', { notNull: true, codecRef: { codecId: 'pg/uuid@1' } }),

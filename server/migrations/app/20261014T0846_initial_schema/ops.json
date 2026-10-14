@@ -41,7 +41,7 @@
     "execute": [
       {
         "description": "create table \"employees\"",
-        "sql": "CREATE TABLE \"public\".\"employees\" (\n  \"country\" text NOT NULL,\n  \"createdAt\" timestamptz NOT NULL,\n  \"email\" text NOT NULL,\n  \"fullName\" text NOT NULL,\n  \"id\" uuid NOT NULL,\n  \"jobTitle\" text NOT NULL,\n  \"salary\" numeric NOT NULL,\n  \"updatedAt\" timestamptz NOT NULL,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"employees_salary_nonnegative_238dd4cc\" CHECK (salary >= 0)\n)",
+        "sql": "CREATE TABLE \"public\".\"employees\" (\n  \"country\" text NOT NULL,\n  \"createdAt\" timestamptz NOT NULL,\n  \"currency\" text NOT NULL,\n  \"email\" text NOT NULL,\n  \"fullName\" text NOT NULL,\n  \"id\" uuid NOT NULL,\n  \"jobTitle\" text NOT NULL,\n  \"salary\" numeric NOT NULL,\n  \"updatedAt\" timestamptz NOT NULL,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"employees_salary_nonnegative_238dd4cc\" CHECK (salary >= 0)\n)",
         "params": []
       }
     ],

@@ -18,7 +18,7 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'6e0ea442d887c1cccbf70e812aad19c0a8c42ceaa18911d1cf15fdd84bca6968'>;
+  StorageHashBase<'c7fa80713fa2c20453d568cae452188b6f1cc2c45b9c3a7d88fcb2ffa5442ef7'>;
 export type ExecutionHash =
   ExecutionHashBase<'6767ed5a82c40a3e49fee6d089b874a91c48e4dc30b0ab9172472c6d905d601f'>;
 export type ProfileHash =
@@ -235,8 +235,9 @@ type DefaultLiteralValue<CodecId extends string, Encoded> = CodecId extends keyo
 export type FieldOutputTypes = {
   readonly public: {
     readonly Employee: {
-      readonly country: CodecTypes['pg/text@1']['output'];
+      readonly country: 'India' | 'United States' | 'United Kingdom' | 'Germany' | 'Canada';
       readonly createdAt: CodecTypes['pg/timestamptz-date@1']['output'];
+      readonly currency: 'INR' | 'USD' | 'GBP' | 'EUR' | 'CAD';
       readonly email: CodecTypes['pg/text@1']['output'];
       readonly fullName: CodecTypes['pg/text@1']['output'];
       readonly id: CodecTypes['pg/uuid@1']['output'];
@@ -249,8 +250,9 @@ export type FieldOutputTypes = {
 export type FieldInputTypes = {
   readonly public: {
     readonly Employee: {
-      readonly country: CodecTypes['pg/text@1']['input'];
+      readonly country: 'India' | 'United States' | 'United Kingdom' | 'Germany' | 'Canada';
       readonly createdAt: CodecTypes['pg/timestamptz-date@1']['input'];
+      readonly currency: 'INR' | 'USD' | 'GBP' | 'EUR' | 'CAD';
       readonly email: CodecTypes['pg/text@1']['input'];
       readonly fullName: CodecTypes['pg/text@1']['input'];
       readonly id: CodecTypes['pg/uuid@1']['input'];
@@ -263,8 +265,9 @@ export type FieldInputTypes = {
 export type StorageColumnTypes = {
   readonly public: {
     readonly employees: {
-      readonly country: CodecTypes['pg/text@1']['output'];
+      readonly country: 'India' | 'United States' | 'United Kingdom' | 'Germany' | 'Canada';
       readonly createdAt: CodecTypes['pg/timestamptz-date@1']['output'];
+      readonly currency: 'INR' | 'USD' | 'GBP' | 'EUR' | 'CAD';
       readonly email: CodecTypes['pg/text@1']['output'];
       readonly fullName: CodecTypes['pg/text@1']['output'];
       readonly id: CodecTypes['pg/uuid@1']['output'];
@@ -277,8 +280,9 @@ export type StorageColumnTypes = {
 export type StorageColumnInputTypes = {
   readonly public: {
     readonly employees: {
-      readonly country: CodecTypes['pg/text@1']['input'];
+      readonly country: 'India' | 'United States' | 'United Kingdom' | 'Germany' | 'Canada';
       readonly createdAt: CodecTypes['pg/timestamptz-date@1']['input'];
+      readonly currency: 'INR' | 'USD' | 'GBP' | 'EUR' | 'CAD';
       readonly email: CodecTypes['pg/text@1']['input'];
       readonly fullName: CodecTypes['pg/text@1']['input'];
       readonly id: CodecTypes['pg/uuid@1']['input'];
@@ -291,8 +295,9 @@ export type StorageColumnInputTypes = {
 
 export namespace Models {
   export type public_Employee = {
-    country: CodecTypes['pg/text@1']['output'];
+    country: 'India' | 'United States' | 'United Kingdom' | 'Germany' | 'Canada';
     createdAt: CodecTypes['pg/timestamptz-date@1']['output'];
+    currency: 'INR' | 'USD' | 'GBP' | 'EUR' | 'CAD';
     email: CodecTypes['pg/text@1']['output'];
     fullName: CodecTypes['pg/text@1']['output'];
     id: CodecTypes['pg/uuid@1']['output'];
@@ -333,12 +338,26 @@ type ContractBase = Omit<
                   readonly dataType: 'pg/text';
                   readonly codecId: 'pg/text@1';
                   readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'literal';
+                    readonly value: DefaultLiteralValue<'pg/text@1', 'India'>;
+                  };
                   readonly many: false;
                 };
                 readonly createdAt: {
                   readonly dataType: 'pg/timestamptz';
                   readonly codecId: 'pg/timestamptz-date@1';
                   readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly currency: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'literal';
+                    readonly value: DefaultLiteralValue<'pg/text@1', 'INR'>;
+                  };
                   readonly many: false;
                 };
                 readonly email: {
@@ -397,6 +416,22 @@ type ContractBase = Omit<
               foreignKeys: readonly [];
             };
           };
+          readonly valueSet: {
+            readonly Country: {
+              readonly kind: 'valueSet';
+              readonly values: readonly [
+                'India',
+                'United States',
+                'United Kingdom',
+                'Germany',
+                'Canada',
+              ];
+            };
+            readonly Currency: {
+              readonly kind: 'valueSet';
+              readonly values: readonly ['INR', 'USD', 'GBP', 'EUR', 'CAD'];
+            };
+          };
         };
       };
     };
@@ -425,6 +460,10 @@ type ContractBase = Omit<
                   readonly kind: 'scalar';
                   readonly codecId: 'pg/timestamptz-date@1';
                 };
+              };
+              readonly currency: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
               };
               readonly email: {
                 readonly nullable: false;
@@ -461,6 +500,7 @@ type ContractBase = Omit<
               readonly fields: {
                 readonly country: { readonly column: 'country' };
                 readonly createdAt: { readonly column: 'createdAt' };
+                readonly currency: { readonly column: 'currency' };
                 readonly email: { readonly column: 'email' };
                 readonly fullName: { readonly column: 'fullName' };
                 readonly id: { readonly column: 'id' };
@@ -470,6 +510,44 @@ type ContractBase = Omit<
               };
             };
           };
+        };
+        readonly enum: {
+          readonly Country: {
+            readonly codecId: 'pg/text@1';
+            readonly members: readonly [
+              { readonly name: 'India'; readonly value: 'India' },
+              { readonly name: 'United States'; readonly value: 'United States' },
+              { readonly name: 'United Kingdom'; readonly value: 'United Kingdom' },
+              { readonly name: 'Germany'; readonly value: 'Germany' },
+              { readonly name: 'Canada'; readonly value: 'Canada' },
+            ];
+          };
+          readonly Currency: {
+            readonly codecId: 'pg/text@1';
+            readonly members: readonly [
+              { readonly name: 'INR'; readonly value: 'INR' },
+              { readonly name: 'USD'; readonly value: 'USD' },
+              { readonly name: 'GBP'; readonly value: 'GBP' },
+              { readonly name: 'EUR'; readonly value: 'EUR' },
+              { readonly name: 'CAD'; readonly value: 'CAD' },
+            ];
+          };
+        };
+        readonly enumMemberTypes?: {
+          readonly Country: readonly [
+            { readonly name: 'India'; readonly value: 'India' },
+            { readonly name: 'United States'; readonly value: 'United States' },
+            { readonly name: 'United Kingdom'; readonly value: 'United Kingdom' },
+            { readonly name: 'Germany'; readonly value: 'Germany' },
+            { readonly name: 'Canada'; readonly value: 'Canada' },
+          ];
+          readonly Currency: readonly [
+            { readonly name: 'INR'; readonly value: 'INR' },
+            { readonly name: 'USD'; readonly value: 'USD' },
+            { readonly name: 'GBP'; readonly value: 'GBP' },
+            { readonly name: 'EUR'; readonly value: 'EUR' },
+            { readonly name: 'CAD'; readonly value: 'CAD' },
+          ];
         };
       };
     };

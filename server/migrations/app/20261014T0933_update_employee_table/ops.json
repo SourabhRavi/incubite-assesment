@@ -1,0 +1,212 @@
+[
+  {
+    "id": "setDefault.employees.country",
+    "label": "Set default on \"employees\".\"country\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "country",
+        "table": "employees"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"country\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "employees",
+          "country"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "set default on \"country\"",
+        "sql": "ALTER TABLE \"public\".\"employees\" ALTER COLUMN \"country\" SET DEFAULT 'India'"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"country\" has a default",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3 AND \"column_default\" IS NOT NULL)) AS \"result\"",
+        "params": [
+          "public",
+          "employees",
+          "country"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "setDefault.employees.currency",
+    "label": "Set default on \"employees\".\"currency\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "currency",
+        "table": "employees"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"currency\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "employees",
+          "currency"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "set default on \"currency\"",
+        "sql": "ALTER TABLE \"public\".\"employees\" ALTER COLUMN \"currency\" SET DEFAULT 'INR'"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"currency\" has a default",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3 AND \"column_default\" IS NOT NULL)) AS \"result\"",
+        "params": [
+          "public",
+          "employees",
+          "currency"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "checkConstraint.employees.employees_country_check_1fb36464",
+    "label": "Add check constraint \"employees_country_check_1fb36464\" on \"employees\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "employees_country_check_1fb36464",
+        "table": "employees"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"employees_country_check_1fb36464\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "employees_country_check_1fb36464",
+          "public",
+          "\"public\".\"employees\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add check constraint \"employees_country_check_1fb36464\"",
+        "sql": "ALTER TABLE \"public\".\"employees\" ADD CONSTRAINT \"employees_country_check_1fb36464\" CHECK (\"country\" IN ('India', 'United States', 'United Kingdom', 'Germany', 'Canada'))"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"employees_country_check_1fb36464\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "employees_country_check_1fb36464",
+          "public",
+          "\"public\".\"employees\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "checkConstraint.employees.employees_country_currency_match_33692e8b",
+    "label": "Add check constraint \"employees_country_currency_match_33692e8b\" on \"employees\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "employees_country_currency_match_33692e8b",
+        "table": "employees"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"employees_country_currency_match_33692e8b\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "employees_country_currency_match_33692e8b",
+          "public",
+          "\"public\".\"employees\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add check constraint \"employees_country_currency_match_33692e8b\"",
+        "sql": "ALTER TABLE \"public\".\"employees\" ADD CONSTRAINT \"employees_country_currency_match_33692e8b\" CHECK ((\n              (\"country\" = 'India' AND \"currency\" = 'INR')\n              OR (\"country\" = 'United States' AND \"currency\" = 'USD')\n              OR (\"country\" = 'United Kingdom' AND \"currency\" = 'GBP')\n              OR (\"country\" = 'Germany' AND \"currency\" = 'EUR')\n              OR (\"country\" = 'Canada' AND \"currency\" = 'CAD')\n            ))"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"employees_country_currency_match_33692e8b\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "employees_country_currency_match_33692e8b",
+          "public",
+          "\"public\".\"employees\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "checkConstraint.employees.employees_currency_check_80a2ebdd",
+    "label": "Add check constraint \"employees_currency_check_80a2ebdd\" on \"employees\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "employees_currency_check_80a2ebdd",
+        "table": "employees"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"employees_currency_check_80a2ebdd\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "employees_currency_check_80a2ebdd",
+          "public",
+          "\"public\".\"employees\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add check constraint \"employees_currency_check_80a2ebdd\"",
+        "sql": "ALTER TABLE \"public\".\"employees\" ADD CONSTRAINT \"employees_currency_check_80a2ebdd\" CHECK (\"currency\" IN ('INR', 'USD', 'GBP', 'EUR', 'CAD'))"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"employees_currency_check_80a2ebdd\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "employees_currency_check_80a2ebdd",
+          "public",
+          "\"public\".\"employees\""
+        ]
+      }
+    ]
+  }
+]

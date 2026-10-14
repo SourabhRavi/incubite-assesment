@@ -12,6 +12,58 @@
   "domain": {
     "namespaces": {
       "public": {
+        "enum": {
+          "Country": {
+            "codecId": "pg/text@1",
+            "members": [
+              {
+                "name": "India",
+                "value": "India"
+              },
+              {
+                "name": "United States",
+                "value": "United States"
+              },
+              {
+                "name": "United Kingdom",
+                "value": "United Kingdom"
+              },
+              {
+                "name": "Germany",
+                "value": "Germany"
+              },
+              {
+                "name": "Canada",
+                "value": "Canada"
+              }
+            ]
+          },
+          "Currency": {
+            "codecId": "pg/text@1",
+            "members": [
+              {
+                "name": "INR",
+                "value": "INR"
+              },
+              {
+                "name": "USD",
+                "value": "USD"
+              },
+              {
+                "name": "GBP",
+                "value": "GBP"
+              },
+              {
+                "name": "EUR",
+                "value": "EUR"
+              },
+              {
+                "name": "CAD",
+                "value": "CAD"
+              }
+            ]
+          }
+        },
         "models": {
           "Employee": {
             "fields": {
@@ -20,6 +72,12 @@
                 "type": {
                   "codecId": "pg/text@1",
                   "kind": "scalar"
+                },
+                "valueSet": {
+                  "entityKind": "enum",
+                  "entityName": "Country",
+                  "namespaceId": "public",
+                  "plane": "domain"
                 }
               },
               "createdAt": {
@@ -27,6 +85,19 @@
                 "type": {
                   "codecId": "pg/timestamptz-date@1",
                   "kind": "scalar"
+                }
+              },
+              "currency": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                },
+                "valueSet": {
+                  "entityKind": "enum",
+                  "entityName": "Currency",
+                  "namespaceId": "public",
+                  "plane": "domain"
                 }
               },
               "email": {
@@ -81,6 +152,9 @@
                 "createdAt": {
                   "column": "createdAt"
                 },
+                "currency": {
+                  "column": "currency"
+                },
                 "email": {
                   "column": "email"
                 },
@@ -116,6 +190,21 @@
             "employees": {
               "checks": [
                 {
+                  "expression": "\"country\" IN ('India', 'United States', 'United Kingdom', 'Germany', 'Canada')",
+                  "name": "employees_country_check_1fb36464",
+                  "prefix": "employees_country_check"
+                },
+                {
+                  "expression": "(\n              (\"country\" = 'India' AND \"currency\" = 'INR')\n              OR (\"country\" = 'United States' AND \"currency\" = 'USD')\n              OR (\"country\" = 'United Kingdom' AND \"currency\" = 'GBP')\n              OR (\"country\" = 'Germany' AND \"currency\" = 'EUR')\n              OR (\"country\" = 'Canada' AND \"currency\" = 'CAD')\n            )",
+                  "name": "employees_country_currency_match_33692e8b",
+                  "prefix": "employees_country_currency_match"
+                },
+                {
+                  "expression": "\"currency\" IN ('INR', 'USD', 'GBP', 'EUR', 'CAD')",
+                  "name": "employees_currency_check_80a2ebdd",
+                  "prefix": "employees_currency_check"
+                },
+                {
                   "expression": "salary >= 0",
                   "name": "employees_salary_nonnegative_238dd4cc",
                   "prefix": "employees_salary_nonnegative"
@@ -125,12 +214,37 @@
                 "country": {
                   "codecId": "pg/text@1",
                   "dataType": "pg/text",
-                  "nullable": false
+                  "default": {
+                    "kind": "literal",
+                    "value": "India"
+                  },
+                  "nullable": false,
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "Country",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
                 },
                 "createdAt": {
                   "codecId": "pg/timestamptz-date@1",
                   "dataType": "pg/timestamptz",
                   "nullable": false
+                },
+                "currency": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "default": {
+                    "kind": "literal",
+                    "value": "INR"
+                  },
+                  "nullable": false,
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "Currency",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
                 },
                 "email": {
                   "codecId": "pg/text@1",
@@ -196,13 +310,35 @@
                 }
               ]
             }
+          },
+          "valueSet": {
+            "Country": {
+              "kind": "valueSet",
+              "values": [
+                "India",
+                "United States",
+                "United Kingdom",
+                "Germany",
+                "Canada"
+              ]
+            },
+            "Currency": {
+              "kind": "valueSet",
+              "values": [
+                "INR",
+                "USD",
+                "GBP",
+                "EUR",
+                "CAD"
+              ]
+            }
           }
         },
         "id": "public",
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "6e0ea442d887c1cccbf70e812aad19c0a8c42ceaa18911d1cf15fdd84bca6968"
+    "storageHash": "c7fa80713fa2c20453d568cae452188b6f1cc2c45b9c3a7d88fcb2ffa5442ef7"
   },
   "execution": {
     "executionHash": "6767ed5a82c40a3e49fee6d089b874a91c48e4dc30b0ab9172472c6d905d601f",
