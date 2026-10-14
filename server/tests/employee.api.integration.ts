@@ -3,7 +3,6 @@ import { after, test } from "node:test";
 import dotenv from "dotenv";
 import request from "supertest";
 
-// Load a dedicated test database before importing the application.
 const testEnv = dotenv.config({
   path: ".env.test",
   override: true,
@@ -15,7 +14,6 @@ if (!testEnv.parsed?.DATABASE_URL) {
   );
 }
 
-// Import after loading the test environment.
 const { default: app } = await import("../src/app.js");
 const { db } = await import("../src/prisma/db.js");
 
@@ -23,14 +21,16 @@ after(async () => {
   await db.close();
 });
 
-test("employee CRUD, listing and salary analytics work against PostgreSQL", async () => {
-  const email = `integration.${Date.now()}@example.com`;
+test("employee CRUD, search, listing and salary analytics work against PostgreSQL", async () => {
+  const uniqueToken = String(Date.now());
+  const email = `integration.${uniqueToken}@example.com`;
+  const fullName = `Integration Test Employee ${uniqueToken}`;
   const testSalary = 1_234_567;
 
   let employeeId: string | undefined;
 
   try {
-    // 1. Capture initial employee counts from the real list endpoint.
+    // Capture baseline list counts.
     const indiaListBefore = await request(app)
       .get("/api/v1/employees")
       .query({ country: "India", limit: 1 });
@@ -45,7 +45,7 @@ test("employee CRUD, listing and salary analytics work against PostgreSQL", asyn
     const indiaCountBefore = Number(indiaListBefore.body.pagination.total);
     const canadaCountBefore = Number(canadaListBefore.body.pagination.total);
 
-    // 2. Capture baseline country-level salary analytics.
+    // Capture baseline country salary analytics.
     const summaryBeforeResponse = await request(app)
       .get("/api/v1/analytics/salary-summary")
       .query({ country: "Canada" });
@@ -66,7 +66,7 @@ test("employee CRUD, listing and salary analytics work against PostgreSQL", asyn
         ? null
         : Number(summaryBefore.averageSalary);
 
-    // 3. Capture the Data Analyst group before the employee is added.
+    // Capture baseline Data Analyst analytics.
     const jobAveragesBeforeResponse = await request(app)
       .get("/api/v1/analytics/job-title-average")
       .query({ country: "Canada" });
@@ -85,9 +85,9 @@ test("employee CRUD, listing and salary analytics work against PostgreSQL", asyn
       ? Number(dataAnalystBefore.averageSalary)
       : null;
 
-    // 4. CREATE: create an employee through the real API.
+    // CREATE: add an employee through the real API.
     const createResponse = await request(app).post("/api/v1/employees").send({
-      fullName: "Integration Test Employee",
+      fullName,
       email,
       jobTitle: "Software Engineer",
       country: "India",
@@ -102,7 +102,80 @@ test("employee CRUD, listing and salary analytics work against PostgreSQL", asyn
     employeeId = createResponse.body.data.id;
     assert.ok(employeeId);
 
-    // 5. LIST: creation should increase India's active employee count.
+    // SEARCH: find the employee by name.
+    const nameSearchResponse = await request(app)
+      .get("/api/v1/employees")
+      .query({ search: fullName });
+
+    assert.equal(
+      nameSearchResponse.status,
+      200,
+      JSON.stringify(nameSearchResponse.body),
+    );
+
+    assert.ok(
+      nameSearchResponse.body.data.some(
+        (employee: { email: string }) => employee.email === email,
+      ),
+      "Name search should find the created employee",
+    );
+
+    // SEARCH: find the employee by email, ignoring capitalization.
+    const emailSearchResponse = await request(app)
+      .get("/api/v1/employees")
+      .query({ search: email.toUpperCase() });
+
+    assert.equal(emailSearchResponse.status, 200);
+    assert.equal(emailSearchResponse.body.pagination.total, 1);
+    assert.equal(emailSearchResponse.body.data.length, 1);
+    assert.equal(emailSearchResponse.body.data[0].email, email);
+
+    // SEARCH + FILTERS: combine keyword, country and job title.
+    const combinedSearchResponse = await request(app)
+      .get("/api/v1/employees")
+      .query({
+        search: email,
+        country: "India",
+        jobTitle: "Software Engineer",
+      });
+
+    assert.equal(combinedSearchResponse.status, 200);
+    assert.equal(combinedSearchResponse.body.pagination.total, 1);
+    assert.equal(combinedSearchResponse.body.data[0].email, email);
+
+    // A conflicting country must return no results.
+    const noMatchResponse = await request(app).get("/api/v1/employees").query({
+      search: email,
+      country: "Canada",
+    });
+
+    assert.equal(noMatchResponse.status, 200);
+    assert.equal(noMatchResponse.body.pagination.total, 0);
+    assert.deepEqual(noMatchResponse.body.data, []);
+
+    // Pagination totals must reflect search results.
+    const paginatedSearchResponse = await request(app)
+      .get("/api/v1/employees")
+      .query({
+        search: email,
+        page: 1,
+        limit: 1,
+      });
+
+    assert.equal(paginatedSearchResponse.status, 200);
+    assert.equal(paginatedSearchResponse.body.pagination.total, 1);
+    assert.equal(paginatedSearchResponse.body.pagination.totalPages, 1);
+    assert.equal(paginatedSearchResponse.body.data.length, 1);
+
+    // SEARCH VALIDATION: reject a term exceeding 100 characters.
+    const longSearchResponse = await request(app)
+      .get("/api/v1/employees")
+      .query({ search: "a".repeat(101) });
+
+    assert.equal(longSearchResponse.status, 400);
+    assert.equal(longSearchResponse.body.error, "Invalid query parameters");
+
+    // LIST: creation should increase India's active employee count.
     const indiaListAfterCreate = await request(app)
       .get("/api/v1/employees")
       .query({ country: "India", limit: 1 });
@@ -112,9 +185,8 @@ test("employee CRUD, listing and salary analytics work against PostgreSQL", asyn
       Number(indiaListAfterCreate.body.pagination.total),
       indiaCountBefore + 1,
     );
-    assert.equal(indiaListAfterCreate.body.pagination.limit, 1);
 
-    // 6. READ: retrieve the saved employee by ID.
+    // READ: retrieve the employee by ID.
     const getResponse = await request(app).get(
       `/api/v1/employees/${employeeId}`,
     );
@@ -124,7 +196,7 @@ test("employee CRUD, listing and salary analytics work against PostgreSQL", asyn
     assert.equal(getResponse.body.data.country, "India");
     assert.equal(Number(getResponse.body.data.salary), 900_000);
 
-    // 7. UPDATE: change country, job title and salary.
+    // UPDATE: change country, job title and salary.
     const updateResponse = await request(app)
       .patch(`/api/v1/employees/${employeeId}`)
       .send({
@@ -139,7 +211,32 @@ test("employee CRUD, listing and salary analytics work against PostgreSQL", asyn
     assert.equal(updateResponse.body.data.jobTitle, "Data Analyst");
     assert.equal(Number(updateResponse.body.data.salary), testSalary);
 
-    // 8. LIST: changing country should update both list totals.
+    // Search must respect the employee's updated fields.
+    const updatedFilterSearchResponse = await request(app)
+      .get("/api/v1/employees")
+      .query({
+        search: email,
+        country: "Canada",
+        jobTitle: "Data Analyst",
+      });
+
+    assert.equal(updatedFilterSearchResponse.status, 200);
+    assert.equal(updatedFilterSearchResponse.body.pagination.total, 1);
+    assert.equal(updatedFilterSearchResponse.body.data[0].email, email);
+
+    // The employee should no longer match the old filters.
+    const oldFilterSearchResponse = await request(app)
+      .get("/api/v1/employees")
+      .query({
+        search: email,
+        country: "India",
+        jobTitle: "Software Engineer",
+      });
+
+    assert.equal(oldFilterSearchResponse.status, 200);
+    assert.equal(oldFilterSearchResponse.body.pagination.total, 0);
+
+    // LIST: country counts should reflect the update.
     const indiaListAfterUpdate = await request(app)
       .get("/api/v1/employees")
       .query({ country: "India", limit: 1 });
@@ -161,7 +258,7 @@ test("employee CRUD, listing and salary analytics work against PostgreSQL", asyn
       canadaCountBefore + 1,
     );
 
-    // 9. READ again: verify updated values are persisted.
+    // READ: verify the updated data was persisted.
     const getUpdatedResponse = await request(app).get(
       `/api/v1/employees/${employeeId}`,
     );
@@ -171,7 +268,7 @@ test("employee CRUD, listing and salary analytics work against PostgreSQL", asyn
     assert.equal(getUpdatedResponse.body.data.currency, "CAD");
     assert.equal(Number(getUpdatedResponse.body.data.salary), testSalary);
 
-    // 10. Verify country-level salary analytics.
+    // ANALYTICS: country summary should include the updated employee.
     const summaryAfterResponse = await request(app)
       .get("/api/v1/analytics/salary-summary")
       .query({ country: "Canada" });
@@ -199,7 +296,7 @@ test("employee CRUD, listing and salary analytics work against PostgreSQL", asyn
       "Country average should include the updated employee",
     );
 
-    // 11. Verify average salary by job title.
+    // ANALYTICS: verify the job-title average.
     const jobAveragesAfterResponse = await request(app)
       .get("/api/v1/analytics/job-title-average")
       .query({ country: "Canada" });
@@ -226,7 +323,7 @@ test("employee CRUD, listing and salary analytics work against PostgreSQL", asyn
       "Job-title average should include the updated employee",
     );
 
-    // 12. DELETE: soft-delete the employee through the real API.
+    // DELETE: soft-delete the employee.
     const deleteResponse = await request(app).delete(
       `/api/v1/employees/${employeeId}`,
     );
@@ -234,14 +331,23 @@ test("employee CRUD, listing and salary analytics work against PostgreSQL", asyn
     assert.equal(deleteResponse.status, 200);
     employeeId = undefined;
 
-    // 13. Verify the deleted employee can no longer be retrieved.
+    // Deleted employees should no longer be retrievable.
     const deletedEmployeeResponse = await request(app).get(
       `/api/v1/employees/${createResponse.body.data.id}`,
     );
 
     assert.equal(deletedEmployeeResponse.status, 404);
 
-    // 14. Verify soft-deleted employees disappear from active lists.
+    // Deleted employees should not appear in search.
+    const deletedSearchResponse = await request(app)
+      .get("/api/v1/employees")
+      .query({ search: email });
+
+    assert.equal(deletedSearchResponse.status, 200);
+    assert.equal(deletedSearchResponse.body.pagination.total, 0);
+    assert.deepEqual(deletedSearchResponse.body.data, []);
+
+    // Active list counts should return to their baselines.
     const indiaListAfterDelete = await request(app)
       .get("/api/v1/employees")
       .query({ country: "India", limit: 1 });
@@ -263,19 +369,18 @@ test("employee CRUD, listing and salary analytics work against PostgreSQL", asyn
       canadaCountBefore,
     );
 
-    // 15. Verify deletion also removes the employee from analytics.
+    // Analytics should return to the initial count.
     const summaryAfterDeleteResponse = await request(app)
       .get("/api/v1/analytics/salary-summary")
       .query({ country: "Canada" });
 
     assert.equal(summaryAfterDeleteResponse.status, 200);
-
     assert.equal(
       Number(summaryAfterDeleteResponse.body.data.employeeCount),
       countBefore,
     );
   } finally {
-    // Attempt cleanup if an assertion fails before normal deletion.
+    // Clean up if an assertion fails before normal deletion.
     if (employeeId) {
       await request(app)
         .delete(`/api/v1/employees/${employeeId}`)

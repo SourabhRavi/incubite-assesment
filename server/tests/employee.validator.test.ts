@@ -82,12 +82,13 @@ test("applies default pagination values", () => {
   expect(result.limit).toBe(20);
 });
 
-test("accepts valid pagination and filters", () => {
+test("accepts valid pagination, filters and search", () => {
   const result = listEmployeesQuerySchema.parse({
     page: "2",
     limit: "50",
     country: "India",
     jobTitle: "Frontend Developer",
+    search: "  Ada  ",
   });
 
   expect(result).toMatchObject({
@@ -95,7 +96,35 @@ test("accepts valid pagination and filters", () => {
     limit: 50,
     country: "India",
     jobTitle: "Frontend Developer",
+    search: "Ada",
   });
+});
+
+test("allows employee listing without a search term", () => {
+  const result = listEmployeesQuerySchema.parse({
+    page: "1",
+    limit: "20",
+  });
+
+  expect(result.page).toBe(1);
+  expect(result.limit).toBe(20);
+  expect(result.search).toBeUndefined();
+});
+
+test("accepts search terms up to 100 characters", () => {
+  const result = listEmployeesQuerySchema.safeParse({
+    search: "a".repeat(100),
+  });
+
+  expect(result.success).toBe(true);
+});
+
+test("rejects search terms longer than 100 characters", () => {
+  const result = listEmployeesQuerySchema.safeParse({
+    search: "a".repeat(101),
+  });
+
+  expect(result.success).toBe(false);
 });
 
 test("rejects invalid pagination", () => {
