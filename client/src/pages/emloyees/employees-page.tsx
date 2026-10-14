@@ -13,6 +13,7 @@ import type {
   EmployeeFilters,
   JobTitle,
 } from "@/features/employees/employee-types"
+import EmployeeDialog from "@/features/employees/employee-dialog.tsx"
 
 const PAGE_SIZE_OPTIONS = [10, 20, 50, 100]
 const SEARCH_DEBOUNCE_MS = 300
@@ -112,6 +113,7 @@ const EmployeeRow = ({ employee }: { employee: Employee }) => (
 
 const EmployeesPage = () => {
   const [searchParams, setSearchParams] = useSearchParams()
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
 
   const page = Math.max(1, Number(searchParams.get("page")) || 1)
   const parsedLimit = Number(searchParams.get("limit")) || 20
@@ -204,14 +206,24 @@ const EmployeesPage = () => {
           </p>
         </div>
 
-        <button
-          type="button"
-          onClick={() => void refetch()}
-          disabled={isFetching}
-          className="inline-flex h-10 items-center justify-center rounded-md border px-4 text-sm font-medium transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          {isFetching ? "Refreshing..." : "Refresh"}
-        </button>
+        <div className="flex flex-col gap-2 sm:flex-row">
+          <button
+            type="button"
+            onClick={() => void refetch()}
+            disabled={isFetching}
+            className="inline-flex h-10 items-center justify-center rounded-md border px-4 text-sm font-medium transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {isFetching ? "Refreshing..." : "Refresh"}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setIsAddDialogOpen(true)}
+            className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+          >
+            + Add Employee
+          </button>
+        </div>
       </div>
 
       <section className="rounded-xl border bg-card">
@@ -383,6 +395,10 @@ const EmployeesPage = () => {
           </div>
         </div>
       </section>
+      <EmployeeDialog
+        open={isAddDialogOpen}
+        onOpenChange={setIsAddDialogOpen}
+      />
     </main>
   )
 }
