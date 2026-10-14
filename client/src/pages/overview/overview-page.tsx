@@ -67,7 +67,7 @@ const MetricCard = ({
       <p className="text-sm font-medium text-muted-foreground">{title}</p>
 
       <span className="flex size-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
-        <Icon className="size-[18px]" />
+        <Icon className="size-4.5" />
       </span>
     </div>
 
@@ -209,7 +209,7 @@ const OverviewPage = () => {
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <MetricCard
           title="Employees"
-          value={String(salarySummary?.employeeCount ?? 0)}
+          value={String(salarySummary?.employeeCount.toLocaleString() ?? 0)}
           detail={`Active employees in ${selectedCountry}`}
           icon={Users}
           isLoading={isSummaryPending}
