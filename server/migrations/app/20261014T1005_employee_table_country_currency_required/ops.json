@@ -1,0 +1,86 @@
+[
+  {
+    "id": "dropDefault.employees.country",
+    "label": "Drop default on \"employees\".\"country\"",
+    "operationClass": "widening",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "country",
+        "table": "employees"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"country\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "employees",
+          "country"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop default on \"country\"",
+        "sql": "ALTER TABLE \"public\".\"employees\" ALTER COLUMN \"country\" DROP DEFAULT"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"country\" has no default",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3 AND \"column_default\" IS NULL)) AS \"result\"",
+        "params": [
+          "public",
+          "employees",
+          "country"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "dropDefault.employees.currency",
+    "label": "Drop default on \"employees\".\"currency\"",
+    "operationClass": "widening",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "currency",
+        "table": "employees"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"currency\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "employees",
+          "currency"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop default on \"currency\"",
+        "sql": "ALTER TABLE \"public\".\"employees\" ALTER COLUMN \"currency\" DROP DEFAULT"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"currency\" has no default",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3 AND \"column_default\" IS NULL)) AS \"result\"",
+        "params": [
+          "public",
+          "employees",
+          "currency"
+        ]
+      }
+    ]
+  }
+]

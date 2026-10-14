@@ -214,10 +214,6 @@
                 "country": {
                   "codecId": "pg/text@1",
                   "dataType": "pg/text",
-                  "default": {
-                    "kind": "literal",
-                    "value": "India"
-                  },
                   "nullable": false,
                   "valueSet": {
                     "entityKind": "valueSet",
@@ -234,10 +230,6 @@
                 "currency": {
                   "codecId": "pg/text@1",
                   "dataType": "pg/text",
-                  "default": {
-                    "kind": "literal",
-                    "value": "INR"
-                  },
                   "nullable": false,
                   "valueSet": {
                     "entityKind": "valueSet",
@@ -338,7 +330,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "c7fa80713fa2c20453d568cae452188b6f1cc2c45b9c3a7d88fcb2ffa5442ef7"
+    "storageHash": "00149a080f11707111cd26bcd14a8c038df82b0e32b80b27e388064bbe0d5a43"
   },
   "execution": {
     "executionHash": "6767ed5a82c40a3e49fee6d089b874a91c48e4dc30b0ab9172472c6d905d601f",
