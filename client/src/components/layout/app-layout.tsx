@@ -24,14 +24,11 @@ const AppLayout = () => {
   const isDark = theme === "dark"
 
   return (
-    <SidebarProvider
-      defaultOpen={true}
-      // className="h-svh! min-h-0! w-full overflow-hidden bg-background"
-    >
+    <SidebarProvider defaultOpen={true}>
       <AppSidebar />
 
-      <SidebarInset className="h-svh min-h-0 min-w-0 overflow-x-hidden overflow-y-auto bg-background md:overflow-hidden">
-        <header className="sticky top-0 z-20 flex h-14 shrink-0 items-center justify-between gap-3 border-b border-border/70 bg-background/85 px-3 backdrop-blur-xl supports-backdrop-filter:bg-background/70 sm:h-16 sm:px-6">
+      <SidebarInset className="h-svh min-h-0 min-w-0 overflow-x-hidden overflow-y-auto bg-background">
+        <header className="sticky top-0 z-30 flex h-14 shrink-0 items-center justify-between gap-3 border-b border-white/20 bg-background/30 px-3 shadow-sm backdrop-blur-2xl sm:h-16 sm:px-6 dark:border-white/10 dark:bg-slate-950/65">
           <div className="flex min-w-0 items-center gap-2">
             <SidebarTrigger
               className="shrink-0"
@@ -48,10 +45,6 @@ const AppLayout = () => {
           </div>
 
           <div className="flex shrink-0 items-center gap-2">
-            {/* <span className="hidden text-xs text-muted-foreground sm:inline">
-              {isDark ? "Dark mode" : "Light mode"}
-            </span> */}
-
             <Button
               type="button"
               variant="outline"
@@ -73,7 +66,7 @@ const AppLayout = () => {
           className={
             isEmployeesPage
               ? "mx-auto w-full max-w-7xl md:flex md:min-h-0 md:flex-1 md:flex-col md:overflow-hidden"
-              : "mx-auto w-full max-w-7xl flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8"
+              : "mx-auto w-full max-w-7xl flex-1 p-4 sm:p-6 lg:p-8"
           }
         >
           <Outlet />

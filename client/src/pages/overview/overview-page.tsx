@@ -10,6 +10,7 @@ import {
 } from "lucide-react"
 
 import {
+  useAllSalarySummaries,
   useJobTitleAverages,
   useSalarySummary,
 } from "@/features/analytics/analytics-queries"
@@ -103,7 +104,12 @@ const OverviewPage = () => {
     refetch: refetchJobAverages,
   } = useJobTitleAverages(selectedCountry)
 
-  const isRefreshing = isSummaryFetching || areJobAveragesFetching
+  const countrySummaryQueries = useAllSalarySummaries()
+
+  const isRefreshing =
+    isSummaryFetching ||
+    areJobAveragesFetching ||
+    countrySummaryQueries.some((query) => query.isFetching)
 
   const currency =
     salarySummary?.currency ??
@@ -114,7 +120,11 @@ const OverviewPage = () => {
     formatMoney(value, currency)
 
   const handleRefresh = async () => {
-    await Promise.all([refetchSummary(), refetchJobAverages()])
+    await Promise.all([
+      refetchSummary(),
+      refetchJobAverages(),
+      ...countrySummaryQueries.map((query) => query.refetch()),
+    ])
   }
 
   const jobSummaries = jobAverages?.data ?? []
@@ -236,6 +246,89 @@ const OverviewPage = () => {
           isLoading={isSummaryPending}
         />
       </div>
+
+      <section className="overflow-hidden rounded-xl border bg-card">
+        <div className="border-b px-5 py-4">
+          <h2 className="font-heading text-base font-semibold">
+            Country comparison
+          </h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Compare active employees and annual salaries across every country.
+          </p>
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-180 text-left text-sm">
+            <thead className="bg-muted/35 text-xs text-muted-foreground">
+              <tr>
+                <th className="px-5 py-3 font-medium">Country</th>
+                <th className="px-5 py-3 text-right font-medium">Employees</th>
+                <th className="px-5 py-3 text-right font-medium">
+                  Minimum salary
+                </th>
+                <th className="px-5 py-3 text-right font-medium">
+                  Average salary
+                </th>
+                <th className="px-5 py-3 text-right font-medium">
+                  Maximum salary
+                </th>
+              </tr>
+            </thead>
+
+            <tbody className="divide-y">
+              {COUNTRIES.map((country, index) => {
+                const query = countrySummaryQueries[index]
+                const summary = query?.data
+                const currency =
+                  summary?.currency ?? COUNTRY_CURRENCIES[country]
+
+                const formatValue = (
+                  value: number | string | null | undefined
+                ) => {
+                  if (query?.isPending) return "Loading..."
+                  if (query?.isError) return "Unavailable"
+
+                  return formatMoney(value, currency)
+                }
+
+                return (
+                  <tr
+                    key={country}
+                    className="transition-colors hover:bg-muted/30"
+                  >
+                    <td className="px-5 py-3.5 font-medium">{country}</td>
+
+                    <td className="px-5 py-3.5 text-right tabular-nums">
+                      {query?.isPending
+                        ? "Loading..."
+                        : query?.isError
+                          ? "Unavailable"
+                          : (summary?.employeeCount ?? 0).toLocaleString()}
+                    </td>
+
+                    <td className="px-5 py-3.5 text-right tabular-nums">
+                      {formatValue(summary?.minSalary)}
+                    </td>
+
+                    <td className="px-5 py-3.5 text-right font-medium tabular-nums">
+                      {formatValue(summary?.averageSalary)}
+                    </td>
+
+                    <td className="px-5 py-3.5 text-right tabular-nums">
+                      {formatValue(summary?.maxSalary)}
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        </div>
+
+        <div className="border-t px-5 py-3 text-xs text-muted-foreground">
+          Salaries are shown in each country's local currency. Deleted employees
+          are excluded.
+        </div>
+      </section>
 
       <section className="overflow-hidden rounded-xl border bg-card">
         <div className="flex flex-col gap-2 border-b px-5 py-4 sm:flex-row sm:items-center sm:justify-between">

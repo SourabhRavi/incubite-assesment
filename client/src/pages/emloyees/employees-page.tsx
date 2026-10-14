@@ -224,7 +224,7 @@ const EmployeesPage = () => {
         <div>
           {/* <p className="text-sm text-muted-foreground/60">People management</p> */}
 
-          <h1 className="mt-1 text-2xl font-semibold tracking-tight">
+          <h1 className="mt-1 font-heading text-2xl font-semibold tracking-tight">
             Employees
           </h1>
 
