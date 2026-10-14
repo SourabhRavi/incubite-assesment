@@ -1,61 +1,12 @@
 import { api } from "@/lib/api"
-
-export const COUNTRIES = [
-  "India",
-  "United States",
-  "United Kingdom",
-  "Germany",
-  "Canada",
-] as const
-
-export const JOB_TITLES = [
-  "Frontend Developer",
-  "Backend Developer",
-  "Full Stack Developer",
-  "Software Engineer",
-  "QA Engineer",
-  "DevOps Engineer",
-  "Data Analyst",
-  "Product Manager",
-  "Engineering Manager",
-  "UI/UX Designer",
-] as const
-
-export type Country = (typeof COUNTRIES)[number]
-export type JobTitle = (typeof JOB_TITLES)[number]
-
-export type Employee = {
-  id: string
-  fullName: string
-  email: string
-  jobTitle: string
-  country: string
-  salary: number | string
-  currency?: string
-  createdAt: string
-  updatedAt: string
-}
-
-export type EmployeeFilters = {
-  page: number
-  limit: number
-  country?: string
-  jobTitle?: string
-}
-
-export type EmployeePagination = {
-  page: number
-  limit: number
-  total: number
-  totalPages: number
-  hasNextPage: boolean
-  hasPreviousPage: boolean
-}
-
-export type PaginatedEmployees = {
-  data: Employee[]
-  pagination: EmployeePagination
-}
+import type {
+  ApiResponse,
+  CreateEmployeeInput,
+  Employee,
+  EmployeeFilters,
+  PaginatedEmployees,
+  UpdateEmployeeInput,
+} from "@/features/employees/employee-types"
 
 export const employeeApi = {
   list: async (filters: EmployeeFilters): Promise<PaginatedEmployees> => {
@@ -63,11 +14,39 @@ export const employeeApi = {
       params: {
         page: filters.page,
         limit: filters.limit,
-        ...(filters.country ? { country: filters.country } : {}),
-        ...(filters.jobTitle ? { jobTitle: filters.jobTitle } : {}),
+        search: filters.search || undefined,
+        country: filters.country || undefined,
+        jobTitle: filters.jobTitle || undefined,
       },
     })
 
     return response.data
+  },
+
+  getById: async (id: string): Promise<Employee> => {
+    const response = await api.get<ApiResponse<Employee>>(
+      `/employees/${encodeURIComponent(id)}`
+    )
+
+    return response.data.data
+  },
+
+  create: async (input: CreateEmployeeInput): Promise<Employee> => {
+    const response = await api.post<ApiResponse<Employee>>("/employees", input)
+
+    return response.data.data
+  },
+
+  update: async (id: string, input: UpdateEmployeeInput): Promise<Employee> => {
+    const response = await api.patch<ApiResponse<Employee>>(
+      `/employees/${encodeURIComponent(id)}`,
+      input
+    )
+
+    return response.data.data
+  },
+
+  remove: async (id: string): Promise<void> => {
+    await api.delete(`/employees/${encodeURIComponent(id)}`)
   },
 }
