@@ -1,5 +1,10 @@
 import { z } from "zod";
-import { COUNTRIES, EMPLOYEE_LIMITS } from "../../constants/constants.js";
+
+import {
+  COUNTRIES,
+  EMPLOYEE_LIMITS,
+  JOB_TITLES,
+} from "../../constants/constants.js";
 
 const employeeFieldsSchema = z.object({
   fullName: z
@@ -15,11 +20,7 @@ const employeeFieldsSchema = z.object({
     .pipe(z.email())
     .pipe(z.string().max(EMPLOYEE_LIMITS.EMAIL_MAX_LENGTH)),
 
-  jobTitle: z
-    .string()
-    .trim()
-    .min(EMPLOYEE_LIMITS.JOB_TITLE_MIN_LENGTH)
-    .max(EMPLOYEE_LIMITS.JOB_TITLE_MAX_LENGTH),
+  jobTitle: z.enum(JOB_TITLES),
 
   country: z.enum(COUNTRIES),
 
@@ -46,12 +47,7 @@ export const listEmployeesQuerySchema = z.object({
 
   country: z.enum(COUNTRIES).optional(),
 
-  jobTitle: z
-    .string()
-    .trim()
-    .min(1)
-    .max(EMPLOYEE_LIMITS.JOB_TITLE_MAX_LENGTH)
-    .optional(),
+  jobTitle: z.enum(JOB_TITLES).optional(),
 });
 
 export const employeeIdSchema = z.uuidv7();
