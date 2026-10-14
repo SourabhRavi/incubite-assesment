@@ -5,10 +5,11 @@
   "main": "index.js",
   "scripts": {
     "dev": "tsx watch src/server.ts",
-    "test": "tsx --test tests/*.test.ts",
+    "test": "jest --runInBand",
     "contract:emit": "prisma contract emit",
     "typecheck": "tsc --noEmit",
-    "seed": "tsx src/prisma/seed.ts"
+    "seed": "tsx src/prisma/seed.ts",
+    "test:integration": "tsx --test tests/employee.api.integration.ts"
   },
   "keywords": [],
   "type": "module",
@@ -22,11 +23,19 @@
     "zod": "^4.6.7"
   },
   "devDependencies": {
+    "@babel/core": "^8.0.7",
+    "@babel/preset-env": "^8.0.7",
+    "@babel/preset-typescript": "^8.0.7",
+    "@jest/globals": "^30.5.2",
     "@prisma/cli-engine": "^0.7.0",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/node": "^26.6.5",
+    "@types/supertest": "^7.2.1",
+    "babel-jest": "^30.5.2",
+    "jest": "^30.5.2",
     "prisma": "^8.0.0-rc.22",
+    "supertest": "^7.3.1",
     "tsx": "^4.23.15",
     "typescript": "^7.0.2"
   }
