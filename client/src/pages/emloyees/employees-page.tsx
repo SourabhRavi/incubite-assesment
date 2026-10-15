@@ -313,6 +313,27 @@ const EmployeesPage = () => {
           </div>
 
           <div className="flex flex-col gap-2 sm:flex-row">
+            {(country || jobTitle || search) && (
+              <button
+                type="button"
+                aria-label="Clear filters"
+                title="Clear filters"
+                onClick={() => {
+                  setSearchInput("")
+
+                  updateParams({
+                    country: "",
+                    jobTitle: "",
+                    search: "",
+                    page: "",
+                  })
+                }}
+                className="hidden size-10 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground xl:inline-flex"
+              >
+                <FilterX className="size-4" />
+              </button>
+            )}
+
             <div className="relative w-full sm:w-64">
               <Search
                 aria-hidden="true"
@@ -372,27 +393,6 @@ const EmployeesPage = () => {
                 </NativeSelectOption>
               ))}
             </NativeSelect>
-
-            {(country || jobTitle || search) && (
-              <button
-                type="button"
-                aria-label="Clear filters"
-                title="Clear filters"
-                onClick={() => {
-                  setSearchInput("")
-
-                  updateParams({
-                    country: "",
-                    jobTitle: "",
-                    search: "",
-                    page: "",
-                  })
-                }}
-                className="hidden size-10 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground xl:inline-flex"
-              >
-                <FilterX className="size-4" />
-              </button>
-            )}
           </div>
         </div>
 
