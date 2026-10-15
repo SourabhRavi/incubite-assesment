@@ -9,7 +9,8 @@
     "contract:emit": "prisma contract emit",
     "typecheck": "tsc --noEmit",
     "seed": "tsx src/prisma/seed.ts",
-    "test:integration": "tsx --test tests/employee.api.integration.ts"
+    "test:integration": "tsx --test tests/employee.api.integration.ts",
+    "test:coverage": "jest --runInBand --coverage"
   },
   "keywords": [],
   "type": "module",
