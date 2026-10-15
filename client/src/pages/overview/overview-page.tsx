@@ -1,7 +1,6 @@
 import { useState } from "react"
 import {
   ArrowDown,
-  ArrowUp,
   ChartNoAxesCombined,
   LoaderCircle,
   RefreshCw,
@@ -324,7 +323,7 @@ const OverviewPage = () => {
           </table>
         </div>
 
-        <div className="border-t px-5 py-3 text-xs text-muted-foreground">
+        <div className="border-t bg-muted/80 px-5 py-3 text-xs text-muted-foreground">
           Salaries are shown in each country's local currency. Deleted employees
           are excluded.
         </div>
@@ -417,8 +416,7 @@ const OverviewPage = () => {
           </div>
         )}
 
-        <div className="flex items-center gap-2 border-t px-5 py-3 text-xs text-muted-foreground">
-          <ArrowUp className="size-3.5" />
+        <div className="flex items-center gap-2 border-t bg-muted/80 px-5 py-3 text-xs text-muted-foreground">
           Salary values are annual and displayed in{" "}
           {COUNTRY_CURRENCIES[selectedCountry]}.
         </div>
