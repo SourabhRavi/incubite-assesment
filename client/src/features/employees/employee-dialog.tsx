@@ -20,6 +20,7 @@ import type {
   UpdateEmployeeInput,
 } from "@/features/employees/employee-types"
 import { Separator } from "@/components/ui/separator.tsx"
+import { toast } from "sonner"
 
 type EmployeeDialogProps = {
   open: boolean
@@ -63,8 +64,12 @@ const EmployeeDialog = ({
           id: employee.id,
           input: input as UpdateEmployeeInput,
         })
+
+        toast.success("Employee updated successfully")
       } else {
         await createMutation.mutateAsync(input as CreateEmployeeInput)
+
+        toast.success("Employee added successfully")
       }
 
       onOpenChange(false)

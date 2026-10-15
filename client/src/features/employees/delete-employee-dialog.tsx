@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/alert-dialog"
 import { useDeleteEmployee } from "@/features/employees/employee-mutations"
 import type { Employee } from "@/features/employees/employee-types"
+import { toast } from "sonner"
 
 type DeleteEmployeeDialogProps = {
   open: boolean
@@ -44,6 +45,11 @@ const DeleteEmployeeDialog = ({
 
     try {
       await deleteMutation.mutateAsync(employee.id)
+
+      toast.success("Employee deleted successfully", {
+        description: `${employee.fullName} was removed from active employees.`,
+      })
+
       onOpenChange(false)
     } catch (error) {
       setDeleteError(
