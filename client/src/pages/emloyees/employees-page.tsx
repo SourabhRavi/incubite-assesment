@@ -421,7 +421,7 @@ const EmployeesPage = () => {
 
         <div className="overflow-x-auto md:min-h-0 md:flex-1 md:overflow-auto">
           <table className="w-full min-w-212.5 text-left">
-            <thead className="bg-background/80 text-xs tracking-wide text-muted-foreground uppercase md:sticky md:top-0 md:z-10 md:border-b md:border-border/50 md:shadow-sm md:backdrop-blur-xl">
+            <thead className="bg-background/80 text-xs tracking-wide text-muted-foreground uppercase md:sticky md:top-0 md:z-10 md:border-b md:border-border/50 md:shadow-sm md:shadow-muted md:backdrop-blur-xl">
               <tr>
                 <th className="px-5 py-3 font-medium">Employee</th>
                 <th className="px-5 py-3 font-medium">Job title</th>

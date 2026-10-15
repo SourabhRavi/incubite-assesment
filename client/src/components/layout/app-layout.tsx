@@ -28,7 +28,7 @@ const AppLayout = () => {
       <AppSidebar />
 
       <SidebarInset className="h-svh min-h-0 min-w-0 overflow-x-hidden overflow-y-auto bg-background">
-        <header className="sticky top-0 z-30 flex h-14 shrink-0 items-center justify-between gap-3 border-b border-white/20 bg-background/30 px-3 shadow-sm backdrop-blur-2xl sm:h-16 sm:px-6 dark:border-white/10 dark:bg-slate-950/65">
+        <header className="sticky top-0 z-30 flex h-14 shrink-0 items-center justify-between gap-3 border-b border-white/20 bg-background/30 px-3 shadow-sm shadow-muted backdrop-blur-2xl sm:h-16 sm:px-6 dark:border-white/10 dark:bg-slate-950/65">
           <div className="flex min-w-0 items-center gap-2">
             <SidebarTrigger
               className="shrink-0"

@@ -8,7 +8,7 @@ export default function NotFoundPage() {
     <main className="flex min-h-svh items-center justify-center bg-background p-6">
       <div className="w-full max-w-md text-center">
         <span className="mx-auto flex size-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-          <Command className="size-6" />
+          <Command className="size-8" />
         </span>
 
         <p className="mt-6 font-heading text-sm font-semibold tracking-widest text-primary">
@@ -20,12 +20,12 @@ export default function NotFoundPage() {
         </h1>
 
         <p className="mt-3 text-sm leading-6 text-muted-foreground">
-          This page doesn't exist or may have been moved. Let's get you back to
-          your workspace.
+          This page doesn't exist or may have been moved.
+          <br /> Let's get you back to your workspace.
         </p>
 
-        <Button className="mt-6">
-          <Link to="/overview">
+        <Button className="mt-6 h-10">
+          <Link to="/overview" className="flex items-center gap-2">
             <ArrowLeft data-icon="inline-start" />
             Back to overview
           </Link>
