@@ -105,14 +105,13 @@ const EmployeeRow = ({
 
     <td className="px-5 py-4 text-right">
       <DropdownMenu>
-        <DropdownMenuTrigger>
-          <button
-            type="button"
-            aria-label={`Actions for ${employee.fullName}`}
-            className="inline-flex size-9 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
-          >
-            <MoreVertical className="size-4" />
-          </button>
+        <DropdownMenuTrigger
+          type="button"
+          title={`Actions for ${employee.fullName}`}
+          aria-label={`Actions for ${employee.fullName}`}
+          className="inline-flex size-9 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+        >
+          <MoreVertical className="size-4" />
         </DropdownMenuTrigger>
 
         <DropdownMenuContent align="end" className="w-44">
