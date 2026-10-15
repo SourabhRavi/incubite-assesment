@@ -107,8 +107,11 @@ npm --prefix client run test:coverage
 - Search uses case-insensitive substring matching on employee names and email addresses.
 - The seed data is synthetic and intended for development and demonstration, not real HR use.
 
-## Out of Scope and Future Improvements
+## Out of Scope and Trade-offs
 
-Authentication, role-based access control, payroll processing, attendance, leave management, and recruitment are outside the implemented assessment scope.
+- **Authentication & RBAC:** Excluded to prioritize the assessment's core employee management and salary analytics workflows.
+- **Payroll, Attendance, Leave & Recruitment:** Excluded because these require separate business workflows beyond the stated requirements.
+- **Precomputed Analytics:** Salary statistics are calculated directly from database aggregations to keep results current without introducing summary synchronization logic.
+- **Advanced Search Optimization:** Deferred because the assessment dataset is limited to 10,000 employees; optimization should follow measured performance results.
 
-For larger datasets, potential improvements include analytics caching or precomputed summaries, specialized search indexing, and performance benchmarking based on measured usage.
+The implementation prioritizes working end-to-end flows, meaningful automated tests, and maintainable code over additional features outside the assessment scope.
