@@ -2,6 +2,11 @@
 
 Employee and salary management application built for the Incubyte engineering assessment.
 
+## Links
+
+- **Live Application:** [PeopleOps](https://incubyte.chitua.site)
+- **Demo Video:** [Watch the Loom walkthrough](https://www.loom.com/share/77c3471354f74b9ba38ba96c64132a64)
+
 ## Features
 
 - Employee CRUD: create, view, update, and delete records.
