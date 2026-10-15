@@ -59,7 +59,7 @@ const MetricCard = ({
   icon: Icon,
   isLoading = false,
 }: MetricCardProps) => (
-  <section className="rounded-xl border bg-card p-5 shadow-xs">
+  <section className="rounded-xl border bg-card p-5 shadow-xs transition-all hover:shadow-md">
     <div className="flex items-start justify-between gap-3">
       <p className="text-sm font-medium text-muted-foreground">{title}</p>
 
