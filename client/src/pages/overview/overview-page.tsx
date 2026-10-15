@@ -22,6 +22,7 @@ import {
   NativeSelect,
   NativeSelectOption,
 } from "@/components/ui/native-select.tsx"
+import { Skeleton } from "@/components/ui/skeleton.tsx"
 
 const formatMoney = (
   value: number | string | null | undefined,
@@ -284,7 +285,13 @@ const OverviewPage = () => {
                 const formatValue = (
                   value: number | string | null | undefined
                 ) => {
-                  if (query?.isPending) return "Loading..."
+                  if (query?.isPending)
+                    return (
+                      <Skeleton
+                        className="h-6 w-full rounded-md"
+                        data-sidebar="menu-skeleton-icon"
+                      />
+                    )
                   if (query?.isError) return "Unavailable"
 
                   return formatMoney(value, currency)
@@ -298,11 +305,16 @@ const OverviewPage = () => {
                     <td className="px-5 py-3.5 font-medium">{country}</td>
 
                     <td className="px-5 py-3.5 text-right tabular-nums">
-                      {query?.isPending
-                        ? "Loading..."
-                        : query?.isError
-                          ? "Unavailable"
-                          : (summary?.employeeCount ?? 0).toLocaleString()}
+                      {query?.isPending ? (
+                        <Skeleton
+                          className="h-6 w-full rounded-md"
+                          data-sidebar="menu-skeleton-icon"
+                        />
+                      ) : query?.isError ? (
+                        "Unavailable"
+                      ) : (
+                        (summary?.employeeCount ?? 0).toLocaleString()
+                      )}
                     </td>
 
                     <td className="px-5 py-3.5 text-right tabular-nums">
