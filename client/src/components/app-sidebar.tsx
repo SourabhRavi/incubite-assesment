@@ -53,7 +53,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               }
             >
               <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-                <Command className="size-5" />
+                <Command className="size-6!" />
               </span>
 
               <span className="flex min-w-0 flex-col items-start gap-0.5">
